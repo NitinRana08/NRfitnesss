@@ -2,6 +2,7 @@ import Hero from "./component/Hero";
 import InfoSection from "./component/InfoSection";
 // import discipline from "public/discipline.png";
 import DisciplineBanner from "./component/DisciplineBanner";
+import FuelSection from "./component/FuelSection";
 
 function App() {
   return (
@@ -27,7 +28,7 @@ function App() {
         {/* Info Section Component */}
         <InfoSection />
         <DisciplineBanner />
-
+        <FuelSection />
 
 
 

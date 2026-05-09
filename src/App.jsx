@@ -3,6 +3,7 @@ import InfoSection from "./component/InfoSection";
 // import discipline from "public/discipline.png";
 import DisciplineBanner from "./component/DisciplineBanner";
 import FuelSection from "./component/FuelSection";
+import Footer from "./component/Footer";
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
         <InfoSection />
         <DisciplineBanner />
         <FuelSection />
+        <Footer/>
 
 
 

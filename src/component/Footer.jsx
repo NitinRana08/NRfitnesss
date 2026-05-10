@@ -23,6 +23,7 @@ function Footer() {
             href="#"
             className="bg-zinc-900 hover:bg-red-600 p-4 rounded-2xl text-2xl transition duration-300"
           >
+            {/* here */}
             <FaFacebook />
           </a>
 

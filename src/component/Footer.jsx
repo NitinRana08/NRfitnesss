@@ -1,4 +1,4 @@
-
+// import Facebook.png from "public/Footer/facebook.png";
 function Footer() {
   return (
     <footer className="bg-zinc-950 text-white px-6 py-16 border-t border-zinc-800">
@@ -23,36 +23,36 @@ function Footer() {
             href="#"
             className="bg-zinc-900 hover:bg-red-600 p-4 rounded-2xl text-2xl transition duration-300"
           >
-            {/* here */}
-            <FaFacebook />
+           
+            <img src="/Footer/Facebook.png" alt="facebook" />
           </a>
 
           <a
             href="#"
             className="bg-zinc-900 hover:bg-red-600 p-4 rounded-2xl text-2xl transition duration-300"
           >
-            <FaInstagram />
+            <img src="/Footer/instagram.png.avif" alt="" />
           </a>
 
           <a
             href="#"
             className="bg-zinc-900 hover:bg-red-600 p-4 rounded-2xl text-2xl transition duration-300"
           >
-            <FaYoutube />
+            {/* <FaYoutube /> */}
           </a>
 
           <a
             href="#"
             className="bg-zinc-900 hover:bg-red-600 p-4 rounded-2xl text-2xl transition duration-300"
           >
-            <FaXTwitter />
+            {/* <FaXTwitter /> */}
           </a>
 
           <a
             href="#"
             className="bg-zinc-900 hover:bg-red-600 p-4 rounded-2xl text-2xl transition duration-300"
           >
-            <FaLinkedin />
+            {/* <FaLinkedin /> */}
           </a>
 
         </div>

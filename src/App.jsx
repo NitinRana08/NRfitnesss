@@ -24,6 +24,9 @@ function App() {
           </ul>
         </nav>
 
+
+        
+
         {/* Hero Component */}
         <Hero />
         {/* Info Section Component */}

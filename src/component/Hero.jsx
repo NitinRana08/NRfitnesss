@@ -20,9 +20,9 @@ function Hero() {
             <span className="text-red-500">Dream Physique</span>
           </h1>
 
-          <button className="mt-8 bg-red-500 px-6 py-3 rounded-lg font-semibold hover:bg-red-600 transition">
+          {/* <button className="mt-8 bg-red-500 px-6 py-3 rounded-lg font-semibold hover:bg-red-600 transition">
             Get Started
-          </button>
+          </button> */}
         </div>
       </div>
 

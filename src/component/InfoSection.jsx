@@ -5,8 +5,9 @@ function InfoSection() {
   // Journey Images
   const images = [
     "/journey0.jpg",
-    "/journey1.jpg",
+    
     "/journey2.jpg",
+    "/journey1.jpg",
     "/journey3.jpg",
     "/journey4.jpg",
   ];
@@ -28,27 +29,28 @@ function InfoSection() {
       <div className="grid md:grid-cols-2 gap-8">
 
         {/* Card 1 */}
-        <div className="bg-zinc-900 rounded-2xl p-6 flex gap-6 items-center hover:scale-[1.02] transition duration-300">
+        <div className="bg-zinc-900 rounded-2xl p-6 flex gap-6 items-stretch hover:scale-[1.02] transition duration-300">
 
           {/* Smooth Image Slider */}
-          <div className="relative w-40 h-40 overflow-hidden rounded-xl flex-shrink-0">
+          <div className="relative w-52 overflow-hidden rounded-xl flex-shrink-0">
 
             {images.map((img, index) => (
               <img
                 key={index}
                 src={img}
                 alt="journey"
-                className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1500 ease-in-out ${index === currentImage ? "opacity-100" : "opacity-0"
-                  }`}
+                className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1500 ease-in-out ${
+                  index === currentImage ? "opacity-100" : "opacity-0"
+                }`}
               />
             ))}
 
           </div>
 
           {/* Text */}
-          <div>
+          <div className="flex flex-col justify-center">
 
-            <h2 className="text-xl font-semibold mb-2">
+            <h2 className="text-xl font-semibold mb-3">
               My Journey
             </h2>
 
@@ -60,20 +62,20 @@ function InfoSection() {
               I also developed a passion for creating and enjoying healthy meals that fuel real progress.
             </p>
 
-            <button className="mt-4 text-red-500 text-sm hover:text-red-400 transition">
+            {/* <button className="mt-5 text-red-500 text-sm hover:text-red-400 transition">
               More →
-            </button>
+            </button> */}
 
           </div>
 
         </div>
 
         {/* Card 2 */}
-        <div className="bg-zinc-900 rounded-2xl p-6 flex gap-6 items-center hover:scale-[1.02] transition duration-300">
+        <div className="bg-zinc-900 rounded-2xl p-6 flex gap-6 items-stretch hover:scale-[1.02] transition duration-300">
 
-          <div className="flex-1">
+          <div className="flex-1 flex flex-col justify-center">
 
-            <h2 className="text-xl font-semibold mb-2">
+            <h2 className="text-xl font-semibold mb-3">
               Train Smarter, Not Harder
             </h2>
 
@@ -82,7 +84,7 @@ function InfoSection() {
               faster, and better every single day.
             </p>
 
-            <button className="mt-4 text-red-500 text-sm hover:text-red-400 transition">
+            <button className="mt-5 text-red-500 text-sm hover:text-red-400 transition">
               Explore Plans →
             </button>
 
@@ -91,7 +93,7 @@ function InfoSection() {
           <img
             src="/train.jpg"
             alt="train"
-            className="w-40 h-40 object-cover rounded-xl"
+            className="w-52 object-cover rounded-xl"
           />
 
         </div>

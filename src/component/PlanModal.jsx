@@ -8,11 +8,16 @@ function PlanModal({ showModal, setShowModal }) {
         name: "",
         age: "",
         gender: "",
+
         height: "",
         weight: "",
 
         heightUnit: "cm",
         weightUnit: "kg",
+
+        injuries: "",
+        medicalCondition: "",
+        extraInfo: "",
     });
 
     const [error, setError] = useState("");
@@ -33,11 +38,22 @@ function PlanModal({ showModal, setShowModal }) {
                 return;
             }
 
-            // age 
+            // Age Validation
             if (formData.age < 8) {
                 setError("Age must be 8 or above");
                 return;
+            }
+        }
 
+        // STEP 2 VALIDATION
+        if (step === 2) {
+
+            if (
+                !formData.height ||
+                !formData.weight
+            ) {
+                setError("Please fill height and weight");
+                return;
             }
         }
 
@@ -51,7 +67,7 @@ function PlanModal({ showModal, setShowModal }) {
     if (!showModal) return null;
 
     return (
-        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4">
+        <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4 py-6 overflow-y-auto">
 
             <div className="bg-zinc-900 w-full max-w-md rounded-2xl p-6 relative border border-zinc-800 overflow-hidden">
 
@@ -76,6 +92,7 @@ function PlanModal({ showModal, setShowModal }) {
                             onClick={() => {
                                 setSubmitted(false);
                                 setShowModal(false);
+                                setStep(1);
                             }}
                             className="mt-6 bg-red-500 hover:bg-red-600 px-6 py-3 rounded-xl font-semibold transition"
                         >
@@ -99,7 +116,7 @@ function PlanModal({ showModal, setShowModal }) {
                 </h2>
 
                 <p className="text-zinc-400 text-sm mb-6">
-                    Step {step} of 8
+                    Step {step} of 9
                 </p>
 
                 {/* STEP 1 */}
@@ -148,11 +165,9 @@ function PlanModal({ showModal, setShowModal }) {
                                 }
                                 className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 outline-none focus:border-red-500"
                             >
-
                                 <option value="">Select Gender</option>
                                 <option>Male</option>
                                 <option>Female</option>
-
                             </select>
 
                         </div>
@@ -160,7 +175,6 @@ function PlanModal({ showModal, setShowModal }) {
                     </div>
                 )}
 
-                {/* STEP 2 */}
                 {/* STEP 2 */}
                 {step === 2 && (
                     <div>
@@ -265,12 +279,10 @@ function PlanModal({ showModal, setShowModal }) {
                         </h3>
 
                         <select className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 outline-none focus:border-red-500">
-
                             <option>Weight Gain</option>
                             <option>Fat Loss</option>
                             <option>Muscle Building</option>
                             <option>Strength</option>
-
                         </select>
 
                     </div>
@@ -285,11 +297,9 @@ function PlanModal({ showModal, setShowModal }) {
                         </h3>
 
                         <select className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 outline-none focus:border-red-500">
-
                             <option>Beginner</option>
                             <option>Intermediate</option>
                             <option>Advanced</option>
-
                         </select>
 
                     </div>
@@ -304,11 +314,9 @@ function PlanModal({ showModal, setShowModal }) {
                         </h3>
 
                         <select className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 outline-none focus:border-red-500">
-
                             <option>Gym Workout</option>
                             <option>Home Workout</option>
                             <option>Hybrid</option>
-
                         </select>
 
                     </div>
@@ -350,11 +358,9 @@ function PlanModal({ showModal, setShowModal }) {
                         </h3>
 
                         <select className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 outline-none focus:border-red-500">
-
                             <option>Vegetarian</option>
                             <option>Non-Vegetarian</option>
                             <option>Eggetarian</option>
-
                         </select>
 
                     </div>
@@ -362,6 +368,84 @@ function PlanModal({ showModal, setShowModal }) {
 
                 {/* STEP 8 */}
                 {step === 8 && (
+                    <div>
+
+                        <h3 className="text-lg font-semibold mb-5">
+                            Health & Limitations
+                        </h3>
+
+                        <div className="space-y-5">
+
+                            {/* Injuries */}
+                            <div>
+
+                                <label className="text-sm text-zinc-400 block mb-2">
+                                    Any injuries? (knee, back, shoulder, etc.)
+                                </label>
+
+                                <textarea
+                                    value={formData.injuries}
+                                    onChange={(e) =>
+                                        setFormData({
+                                            ...formData,
+                                            injuries: e.target.value,
+                                        })
+                                    }
+                                    placeholder="Tell us about your injuries..."
+                                    className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 outline-none focus:border-red-500 resize-none h-28"
+                                />
+
+                            </div>
+
+                            {/* Medical Condition */}
+                            <div>
+
+                                <label className="text-sm text-zinc-400 block mb-2">
+                                    Any medical condition?
+                                </label>
+
+                                <textarea
+                                    value={formData.medicalCondition}
+                                    onChange={(e) =>
+                                        setFormData({
+                                            ...formData,
+                                            medicalCondition: e.target.value,
+                                        })
+                                    }
+                                    placeholder="Mention any medical conditions..."
+                                    className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 outline-none focus:border-red-500 resize-none h-28"
+                                />
+
+                            </div>
+
+                            {/* Extra Message */}
+                            <div>
+
+                                <label className="text-sm text-zinc-400 block mb-2">
+                                    Is there anything you want to share?
+                                </label>
+
+                                <textarea
+                                    value={formData.extraInfo}
+                                    onChange={(e) =>
+                                        setFormData({
+                                            ...formData,
+                                            extraInfo: e.target.value,
+                                        })
+                                    }
+                                    placeholder="Write anything you'd like us to know..."
+                                    className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 outline-none focus:border-red-500 resize-none h-32"
+                                />
+
+                            </div>
+
+                        </div>
+
+                    </div>
+                )}
+
+                {/* STEP 9 */}
+                {step === 9 && (
                     <div className="text-center">
 
                         <h3 className="text-xl font-semibold mb-4">
@@ -405,7 +489,7 @@ function PlanModal({ showModal, setShowModal }) {
                     )}
 
                     {/* Next */}
-                    {step < 8 && (
+                    {step < 9 && (
                         <button
                             onClick={handleNext}
                             className="flex-1 bg-red-500 hover:bg-red-600 py-3 rounded-xl font-semibold transition"

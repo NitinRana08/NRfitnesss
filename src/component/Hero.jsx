@@ -1,6 +1,6 @@
 function Hero() {
   return (
-    <section className="relative h-[80vh]">
+    <section id="home" className="relative h-[80vh]">
 
       {/* Background Image */}
       <img

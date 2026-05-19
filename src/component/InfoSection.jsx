@@ -10,9 +10,11 @@ function InfoSection() {
   const images = [
     "/journey0.jpg",
     "/journey2.jpg",
+    "/journey5.jpg",
     "/journey1.jpg",
     "/journey3.jpg",
     "/journey4.jpg",
+    
   ];
 
   // Current Slider Image

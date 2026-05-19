@@ -3,6 +3,7 @@ import InfoSection from "./component/InfoSection";
 import DisciplineBanner from "./component/DisciplineBanner";
 import FuelSection from "./component/FuelSection";
 import Footer from "./component/Footer";
+import About from "./component/About";
 
 function App() {
   return (
@@ -44,6 +45,8 @@ function App() {
 
       {/* Hero */}
       <Hero />
+      {/* About */}
+      <About />
 
       {/* Sections */}
       <InfoSection />

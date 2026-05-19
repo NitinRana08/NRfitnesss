@@ -1,10 +1,13 @@
 function Footer() {
   return (
-    <footer className="bg-zinc-950 text-white px-6 py-16 border-t border-zinc-800">
+    <footer
+  id="contact"
+  className="scroll-mt-24 bg-zinc-950 text-white px-6 py-16 border-t border-zinc-800"
+>
 
       <div className="max-w-6xl mx-auto">
 
-        {/* Heading */}
+        {/* Heading */} 
         <div className="text-center mb-10">
           <h2 className="text-3xl md:text-4xl font-bold">
             Connect With Us

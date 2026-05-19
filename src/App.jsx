@@ -12,10 +12,10 @@ function App() {
   const [showAbout, setShowAbout] = useState(false);
 
   return (
-    <div className="bg-black text-white min-h-screen">
+    <div className="bg-black text-white min-h-screen overflow-x-hidden">
 
       {/* Navbar */}
-      <nav className="sticky top-0 z-50 backdrop-blur-md bg-black/70 border-b border-zinc-800 flex justify-between items-center px-6 md:px-8 py-4">
+      <nav className="sticky top-0 z-40 backdrop-blur-md bg-black/70 border-b border-zinc-800 flex justify-between items-center px-6 md:px-8 py-4">
 
         {/* Logo */}
         <h1 className="text-2xl md:text-3xl font-bold">
@@ -28,61 +28,82 @@ function App() {
           <li>
             <a
               href="#home"
-              className="hover:text-white transition cursor-pointer"
+              className="hover:text-white transition duration-300"
             >
               Home
             </a>
           </li>
 
-          {/* About Popup Button */}
+          {/* About Button */}
           <li
             onClick={() => setShowAbout(true)}
-            className="hover:text-white transition cursor-pointer"
+            className="hover:text-white transition duration-300 cursor-pointer"
           >
             About
           </li>
 
-          <li className="hover:text-white transition cursor-pointer">
-            Contact
+          <li>
+            <a
+              href="#contact"
+              className="hover:text-white transition duration-300 cursor-pointer"
+            >
+              Contact
+            </a>
           </li>
 
-          <li className="hover:text-white transition cursor-pointer">
+          <li className="hover:text-white transition duration-300 cursor-pointer">
             Communication
           </li>
 
         </ul>
 
+
+
+
+
+
+
+
       </nav>
 
-      {/* Hero */}
+      {/* Main Sections */}
       <Hero />
-
-      {/* Sections */}
       <InfoSection />
       <DisciplineBanner />
       <FuelSection />
       <Footer />
 
       {/* About Popup */}
-      {showAbout && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+      <div
+        className={`fixed inset-0 z-50 flex items-center justify-center p-4 transition-all duration-500
+        ${showAbout
+            ? "opacity-100 visible bg-black/80 backdrop-blur-sm"
+            : "opacity-0 invisible"
+          }`}
+      >
 
-          <div className="relative w-full max-w-6xl max-h-[90vh] overflow-y-auto bg-black rounded-3xl border border-zinc-800">
+        {/* Popup Box */}
+        <div
+          className={`relative w-full max-w-6xl max-h-[90vh] overflow-y-auto rounded-3xl border border-zinc-800 bg-black transition-all duration-500
+          ${showAbout
+              ? "scale-100 translate-y-0"
+              : "scale-90 translate-y-10"
+            }`}
+        >
 
-            {/* Close Button */}
-            <button
-              onClick={() => setShowAbout(false)}
-              className="absolute top-5 right-5 text-3xl text-white hover:text-red-500 duration-300 z-50"
-            >
-              ✕
-            </button>
+          {/* Close Button */}
+          <button
+            onClick={() => setShowAbout(false)}
+            className="absolute top-5 right-5 z-50 text-3xl text-white hover:text-red-500 duration-300"
+          >
+            ✕
+          </button>
 
-            {/* About Component */}
-            <About closeAbout={() => setShowAbout(false)} />
+          {/* About Component */}
+          <About closeAbout={() => setShowAbout(false)} />
 
-          </div>
         </div>
-      )}
+      </div>
 
     </div>
   );

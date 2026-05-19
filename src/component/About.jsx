@@ -87,7 +87,10 @@ function About({ closeAbout }) {
                     </div>
 
                     {/* Button */}
-                    <button className="bg-red-500 hover:bg-red-600 hover:scale-105 px-8 py-4 rounded-full text-white font-semibold duration-300 shadow-lg shadow-red-500/20">
+                    <button
+                        onClick={closeAbout}
+                        className="bg-red-500 hover:bg-red-600 hover:scale-105 px-8 py-4 rounded-full text-white font-semibold duration-300 shadow-lg shadow-red-500/20"
+                    >
                         Start Your Journey
                     </button>
 

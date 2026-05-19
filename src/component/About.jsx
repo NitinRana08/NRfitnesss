@@ -1,6 +1,6 @@
 // About.jsx
 
-import aboutImg from "../assets/about.jpg";
+// import aboutImg from ".pu"
 
 function About() {
     return (
@@ -13,7 +13,7 @@ function About() {
                 {/* Left Image */}
                 <div className="overflow-hidden rounded-3xl">
                     <img
-                        src={aboutImg}
+                        src="/aboutImg.jpg"
                         alt="NR Fitness"
                         className="w-full h-[500px] object-cover hover:scale-105 duration-500"
                     />

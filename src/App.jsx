@@ -1,4 +1,5 @@
 import { useState } from "react";
+import {useEffect } from "react";
 
 import Hero from "./component/Hero";
 import InfoSection from "./component/InfoSection";
@@ -11,12 +12,12 @@ function App() {
 
   const [showAbout, setShowAbout] = useState(false);
 
+  
   return (
-    <div className="bg-black text-white min-h-screen overflow-x-hidden">
+   <div className="bg-black text-white min-h-screen">
 
       {/* Navbar */}
-      <nav className="sticky top-0 z-40 backdrop-blur-md bg-black/70 border-b border-zinc-800 flex justify-between items-center px-6 md:px-8 py-4">
-
+     <nav className="sticky top-0 z-50 bg-black/80 backdrop-blur-lg border-b border-zinc-800 flex justify-between items-center px-6 md:px-8 py-4">
         {/* Logo */}
         <h1 className="text-2xl md:text-3xl font-bold">
           <span className="text-red-500">NR</span> FITNESS

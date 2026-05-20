@@ -1,10 +1,26 @@
 import { useEffect, useState } from "react";
+
 import PlanModal from "./PlanModal";
 
 function InfoSection() {
 
   // Modal State
   const [showModal, setShowModal] = useState(false);
+  useEffect(() => {
+
+    if (showModal) {
+      document.body.classList.add("overflow-hidden");
+    } else {
+      document.body.classList.remove("overflow-hidden");
+    }
+
+    return () => {
+      document.body.classList.remove("overflow-hidden");
+    };
+
+  }, [showModal]);
+
+
 
   // Journey Images
   const images = [
@@ -14,7 +30,7 @@ function InfoSection() {
     "/journey1.jpg",
     "/journey3.jpg",
     "/journey4.jpg",
-    
+
   ];
 
   // Current Slider Image

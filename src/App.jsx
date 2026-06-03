@@ -1,5 +1,7 @@
-import { useState } from "react";
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
+import AuthModal from "./component/AuthModal";
+import { auth } from "./firebase";
+import { onAuthStateChanged } from "firebase/auth";
 
 import Hero from "./component/Hero";
 import InfoSection from "./component/InfoSection";
@@ -9,9 +11,22 @@ import Footer from "./component/Footer";
 import About from "./component/About";
 
 function App() {
-
+  const [user, setUser] = useState(null);
   const [showAbout, setShowAbout] = useState(false);
 
+  // Firebase Auth Listener
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(
+      auth,
+      (currentUser) => {
+        setUser(currentUser);
+      }
+    );
+
+    return () => unsubscribe();
+  }, []);
+
+  // Lock background scroll when About popup opens
   useEffect(() => {
     if (showAbout) {
       document.body.classList.add("overflow-hidden");
@@ -22,15 +37,23 @@ function App() {
     return () => {
       document.body.classList.remove("overflow-hidden");
     };
-
   }, [showAbout]);
 
+  // Show Login/Signup first
+  if (!user) {
+    return (
+      <AuthModal
+        onLogin={() => setUser(auth.currentUser)}
+      />
+    );
+  }
 
   return (
     <div className="bg-black text-white min-h-screen">
 
       {/* Navbar */}
       <nav className="sticky top-0 z-50 bg-black/80 backdrop-blur-lg border-b border-zinc-800 flex justify-between items-center px-6 md:px-8 py-4">
+
         {/* Logo */}
         <h1 className="text-2xl md:text-3xl font-bold">
           <span className="text-red-500">NR</span> FITNESS
@@ -48,7 +71,6 @@ function App() {
             </a>
           </li>
 
-          {/* About Button */}
           <li
             onClick={() => setShowAbout(true)}
             className="hover:text-white transition duration-300 cursor-pointer"
@@ -71,13 +93,6 @@ function App() {
 
         </ul>
 
-
-
-
-
-
-
-
       </nav>
 
       {/* Main Sections */}
@@ -90,19 +105,20 @@ function App() {
       {/* About Popup */}
       <div
         className={`fixed inset-0 z-50 flex items-center justify-center p-4 transition-all duration-500
-        ${showAbout
+        ${
+          showAbout
             ? "opacity-100 visible bg-black/80 backdrop-blur-sm"
             : "opacity-0 invisible"
-          }`}
+        }`}
       >
 
-        {/* Popup Box */}
         <div
           className={`relative w-full max-w-6xl max-h-[90vh] overflow-y-auto rounded-3xl border border-zinc-800 bg-black transition-all duration-500
-          ${showAbout
+          ${
+            showAbout
               ? "scale-100 translate-y-0"
               : "scale-90 translate-y-10"
-            }`}
+          }`}
         >
 
           {/* Close Button */}

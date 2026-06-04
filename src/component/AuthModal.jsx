@@ -2,8 +2,14 @@ import { useState } from "react";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
+  sendEmailVerification,
+  signInWithPopup,
 } from "firebase/auth";
-import { auth } from "../firebase";
+
+import {
+  auth,
+  googleProvider,
+} from "../firebase";
 
 function AuthModal({ onLogin }) {
   const [isLogin, setIsLogin] = useState(true);
@@ -16,18 +22,53 @@ function AuthModal({ onLogin }) {
 
     try {
       if (isLogin) {
-        await signInWithEmailAndPassword(
-          auth,
-          email,
-          password
-        );
+        const userCredential =
+          await signInWithEmailAndPassword(
+            auth,
+            email,
+            password
+          );
+
+        if (
+          !userCredential.user.emailVerified
+        ) {
+          alert(
+            "Please verify your email before logging in."
+          );
+
+          return;
+        }
+
+        onLogin();
       } else {
-        await createUserWithEmailAndPassword(
-          auth,
-          email,
-          password
+        const userCredential =
+          await createUserWithEmailAndPassword(
+            auth,
+            email,
+            password
+          );
+
+        await sendEmailVerification(
+          userCredential.user
         );
+
+        alert(
+          "Verification email sent. Please check your inbox."
+        );
+
+        await auth.signOut();
       }
+    } catch (error) {
+      alert(error.message);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    try {
+      await signInWithPopup(
+        auth,
+        googleProvider
+      );
 
       onLogin();
     } catch (error) {
@@ -69,12 +110,19 @@ function AuthModal({ onLogin }) {
             required
           />
 
-          <button
-            className="bg-red-500 py-3 rounded-lg font-bold"
-          >
-            {isLogin ? "Login" : "Create Account"}
+          <button className="bg-red-500 py-3 rounded-lg font-bold">
+            {isLogin
+              ? "Login"
+              : "Create Account"}
           </button>
         </form>
+
+        <button
+          onClick={handleGoogleLogin}
+          className="w-full mt-4 py-3 rounded-lg bg-white text-black font-bold"
+        >
+          Continue with Google
+        </button>
 
         <p className="text-center mt-4 text-gray-400">
           {isLogin
@@ -88,7 +136,9 @@ function AuthModal({ onLogin }) {
           }
           className="w-full text-red-500 mt-2"
         >
-          {isLogin ? "Sign Up" : "Login"}
+          {isLogin
+            ? "Sign Up"
+            : "Login"}
         </button>
       </div>
     </div>

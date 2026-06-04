@@ -29,13 +29,10 @@ function AuthModal({ onLogin }) {
             password
           );
 
-        if (
-          !userCredential.user.emailVerified
-        ) {
+        if (!userCredential.user.emailVerified) {
           alert(
             "Please verify your email before logging in."
           );
-
           return;
         }
 
@@ -78,9 +75,9 @@ function AuthModal({ onLogin }) {
 
   return (
     <div className="fixed inset-0 bg-black flex items-center justify-center z-[999]">
-      <div className="bg-zinc-900 p-8 rounded-2xl w-[90%] max-w-md border border-zinc-700">
+      <div className="bg-zinc-900 p-8 rounded-2xl w-[90%] max-w-md border border-zinc-700 shadow-2xl">
 
-        <h2 className="text-3xl font-bold text-center mb-6">
+        <h2 className="text-3xl font-bold text-center mb-6 text-white">
           {isLogin ? "Login" : "Sign Up"}
         </h2>
 
@@ -91,7 +88,7 @@ function AuthModal({ onLogin }) {
           <input
             type="email"
             placeholder="Email"
-            className="p-3 rounded-lg bg-zinc-800"
+            className="p-3 rounded-lg bg-zinc-800 text-white caret-white placeholder-gray-400 border border-zinc-700 focus:outline-none focus:border-red-500"
             value={email}
             onChange={(e) =>
               setEmail(e.target.value)
@@ -102,7 +99,7 @@ function AuthModal({ onLogin }) {
           <input
             type="password"
             placeholder="Password"
-            className="p-3 rounded-lg bg-zinc-800"
+            className="p-3 rounded-lg bg-zinc-800 text-white caret-white placeholder-gray-400 border border-zinc-700 focus:outline-none focus:border-red-500"
             value={password}
             onChange={(e) =>
               setPassword(e.target.value)
@@ -110,21 +107,32 @@ function AuthModal({ onLogin }) {
             required
           />
 
-          <button className="bg-red-500 py-3 rounded-lg font-bold">
+          <button
+            type="submit"
+            className="bg-red-500 hover:bg-red-600 py-3 rounded-lg font-bold text-white transition"
+          >
             {isLogin
               ? "Login"
               : "Create Account"}
           </button>
         </form>
 
+        <div className="my-4 flex items-center">
+          <div className="flex-1 h-px bg-zinc-700"></div>
+          <span className="px-3 text-gray-400 text-sm">
+            OR
+          </span>
+          <div className="flex-1 h-px bg-zinc-700"></div>
+        </div>
+
         <button
           onClick={handleGoogleLogin}
-          className="w-full mt-4 py-3 rounded-lg bg-white text-black font-bold"
+          className="w-full py-3 rounded-lg bg-white text-black font-bold hover:bg-gray-200 transition"
         >
           Continue with Google
         </button>
 
-        <p className="text-center mt-4 text-gray-400">
+        <p className="text-center mt-5 text-gray-400">
           {isLogin
             ? "Don't have an account?"
             : "Already have an account?"}
@@ -134,12 +142,13 @@ function AuthModal({ onLogin }) {
           onClick={() =>
             setIsLogin(!isLogin)
           }
-          className="w-full text-red-500 mt-2"
+          className="w-full text-red-500 mt-2 font-medium hover:text-red-400 transition"
         >
           {isLogin
             ? "Sign Up"
             : "Login"}
         </button>
+
       </div>
     </div>
   );

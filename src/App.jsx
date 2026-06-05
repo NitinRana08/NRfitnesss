@@ -9,10 +9,17 @@ import DisciplineBanner from "./component/DisciplineBanner";
 import FuelSection from "./component/FuelSection";
 import Footer from "./component/Footer";
 import About from "./component/About";
+import { signOut } from "firebase/auth";
+import AdminDashboard from "./component/AdminDashboard";
 
 function App() {
   const [user, setUser] = useState(null);
   const [showAbout, setShowAbout] = useState(false);
+  const ADMIN_EMAIL =
+    "nitinr8229@gmail.com";
+
+  const isAdmin =
+    user?.email === ADMIN_EMAIL;
 
   // Firebase Auth Listener
   useEffect(() => {
@@ -46,6 +53,9 @@ function App() {
         onLogin={() => setUser(auth.currentUser)}
       />
     );
+  }
+  if (isAdmin) {
+    return <AdminDashboard />;
   }
 
   return (
@@ -90,6 +100,12 @@ function App() {
           <li className="hover:text-white transition duration-300 cursor-pointer">
             Communication
           </li>
+          <button
+            onClick={() => signOut(auth)}
+            className="bg-red-500 px-4 py-2 rounded-lg"
+          >
+            Logout
+          </button>
 
         </ul>
 
@@ -105,20 +121,18 @@ function App() {
       {/* About Popup */}
       <div
         className={`fixed inset-0 z-50 flex items-center justify-center p-4 transition-all duration-500
-        ${
-          showAbout
+        ${showAbout
             ? "opacity-100 visible bg-black/80 backdrop-blur-sm"
             : "opacity-0 invisible"
-        }`}
+          }`}
       >
 
         <div
           className={`relative w-full max-w-6xl max-h-[90vh] overflow-y-auto rounded-3xl border border-zinc-800 bg-black transition-all duration-500
-          ${
-            showAbout
+          ${showAbout
               ? "scale-100 translate-y-0"
               : "scale-90 translate-y-10"
-          }`}
+            }`}
         >
 
           {/* Close Button */}

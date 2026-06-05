@@ -1,4 +1,7 @@
 import { useState } from "react";
+import { auth, db } from "../firebase";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+
 
 function PlanModal({ showModal, setShowModal }) {
 
@@ -15,6 +18,15 @@ function PlanModal({ showModal, setShowModal }) {
         heightUnit: "cm",
         weightUnit: "kg",
 
+        goal: "",
+        experience: "",
+        workoutPreference: "",
+
+        sleepHours: "",
+        trainingDays: "",
+
+        dietPreference: "",
+
         injuries: "",
         medicalCondition: "",
         extraInfo: "",
@@ -24,7 +36,25 @@ function PlanModal({ showModal, setShowModal }) {
 
     const [step, setStep] = useState(1);
 
+    const handleSubmitPlan = async () => {
+        try {
+            await addDoc(collection(db, "planRequests"), {
+                ...formData,
+
+                userEmail: auth.currentUser?.email,
+
+                createdAt: serverTimestamp(),
+            });
+
+            setSubmitted(true);
+
+        } catch (error) {
+            console.error(error);
+            alert("Failed to submit plan.");
+        }
+    };
     const handleNext = () => {
+
 
         // STEP 1 VALIDATION
         if (step === 1) {
@@ -278,7 +308,17 @@ function PlanModal({ showModal, setShowModal }) {
                             Fitness Goal
                         </h3>
 
-                        <select className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 outline-none focus:border-red-500">
+                        <select
+                            value={formData.goal}
+                            onChange={(e) =>
+                                setFormData({
+                                    ...formData,
+                                    goal: e.target.value,
+                                })
+                            }
+                            className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 outline-none focus:border-red-500"
+                        >
+                            <option value="">Select Goal</option>
                             <option>Weight Gain</option>
                             <option>Fat Loss</option>
                             <option>Muscle Building</option>
@@ -296,7 +336,17 @@ function PlanModal({ showModal, setShowModal }) {
                             Experience Level
                         </h3>
 
-                        <select className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 outline-none focus:border-red-500">
+                        <select
+                            value={formData.experience}
+                            onChange={(e) =>
+                                setFormData({
+                                    ...formData,
+                                    experience: e.target.value,
+                                })
+                            }
+                            className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 outline-none focus:border-red-500"
+                        >
+                            <option value="">Select Experience</option>
                             <option>Beginner</option>
                             <option>Intermediate</option>
                             <option>Advanced</option>
@@ -313,7 +363,17 @@ function PlanModal({ showModal, setShowModal }) {
                             Workout Preference
                         </h3>
 
-                        <select className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 outline-none focus:border-red-500">
+                        <select
+                            value={formData.workoutPreference}
+                            onChange={(e) =>
+                                setFormData({
+                                    ...formData,
+                                    workoutPreference: e.target.value,
+                                })
+                            }
+                            className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 outline-none focus:border-red-500"
+                        >
+                            <option value="">Select Preference</option>
                             <option>Gym Workout</option>
                             <option>Home Workout</option>
                             <option>Hybrid</option>
@@ -333,14 +393,28 @@ function PlanModal({ showModal, setShowModal }) {
                         <div className="space-y-4">
 
                             <input
-                                type="text"
+                                type="number"
                                 placeholder="Sleep Hours"
+                                value={formData.sleepHours}
+                                onChange={(e) =>
+                                    setFormData({
+                                        ...formData,
+                                        sleepHours: e.target.value,
+                                    })
+                                }
                                 className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 outline-none focus:border-red-500"
                             />
 
                             <input
-                                type="text"
+                                type="number"
                                 placeholder="Training Days Per Week"
+                                value={formData.trainingDays}
+                                onChange={(e) =>
+                                    setFormData({
+                                        ...formData,
+                                        trainingDays: e.target.value,
+                                    })
+                                }
                                 className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 outline-none focus:border-red-500"
                             />
 
@@ -357,7 +431,17 @@ function PlanModal({ showModal, setShowModal }) {
                             Nutrition Preference
                         </h3>
 
-                        <select className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 outline-none focus:border-red-500">
+                        <select
+                            value={formData.dietPreference}
+                            onChange={(e) =>
+                                setFormData({
+                                    ...formData,
+                                    dietPreference: e.target.value,
+                                })
+                            }
+                            className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 outline-none focus:border-red-500"
+                        >
+                            <option value="">Select Diet</option>
                             <option>Vegetarian</option>
                             <option>Non-Vegetarian</option>
                             <option>Eggetarian</option>
@@ -457,7 +541,7 @@ function PlanModal({ showModal, setShowModal }) {
                         </p>
 
                         <button
-                            onClick={() => setSubmitted(true)}
+                            onClick={handleSubmitPlan}
                             className="w-full bg-red-500 hover:bg-red-600 py-3 rounded-xl font-semibold transition"
                         >
                             Generate Plan

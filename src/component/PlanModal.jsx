@@ -3,8 +3,9 @@ import { auth, db } from "../firebase";
 import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 
 
-function PlanModal({ showModal, setShowModal }) {
 
+function PlanModal({ showModal, setShowModal }) {
+    const [showSuccess, setShowSuccess] = useState(false);
     const [submitted, setSubmitted] = useState(false);
 
     const [formData, setFormData] = useState({
@@ -37,22 +38,12 @@ function PlanModal({ showModal, setShowModal }) {
     const [step, setStep] = useState(1);
 
     const handleSubmitPlan = async () => {
-        try {
-            await addDoc(collection(db, "planRequests"), {
-                ...formData,
 
-                userEmail: auth.currentUser?.email,
+    console.log("BUTTON CLICKED");
 
-                createdAt: serverTimestamp(),
-            });
+    alert("Generate Plan Clicked");
 
-            setSubmitted(true);
-
-        } catch (error) {
-            console.error(error);
-            alert("Failed to submit plan.");
-        }
-    };
+};
     const handleNext = () => {
 
 

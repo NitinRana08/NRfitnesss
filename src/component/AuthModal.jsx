@@ -29,10 +29,16 @@ function AuthModal({ onLogin }) {
             password
           );
 
+        // Refresh user data from Firebase
+        await userCredential.user.reload();
+
         if (!userCredential.user.emailVerified) {
+          await auth.signOut();
+
           alert(
             "Please verify your email before logging in."
           );
+
           return;
         }
 

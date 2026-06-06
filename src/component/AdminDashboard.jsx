@@ -1,10 +1,29 @@
+import { signOut } from "firebase/auth";
+import { auth } from "../firebase";
+
 function AdminDashboard() {
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+    } catch (error) {
+      console.error(error);
+    }
+  };
   return (
     <div className="min-h-screen bg-black text-white p-8">
 
-      <h1 className="text-4xl font-bold mb-8">
-        Admin Dashboard
-      </h1>
+      <div className="flex justify-between items-center mb-8">
+        <h1 className="text-4xl font-bold">
+          Admin Dashboard
+        </h1>
+
+        <button
+          onClick={handleLogout}
+          className="bg-red-500 hover:bg-red-600 px-5 py-2 rounded-xl font-semibold transition"
+        >
+          Logout
+        </button>
+      </div>
 
       <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6">
 

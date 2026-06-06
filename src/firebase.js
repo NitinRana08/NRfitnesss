@@ -10,13 +10,12 @@ import {
 } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyB7U2sHUn6WzS1sWVG1ZJ_JgFeN-Povwh8",
-  authDomain: "nrfitness-b87b2.firebaseapp.com",
-  databaseURL: "https://nrfitness-b87b2-default-rtdb.firebaseio.com",
-  projectId: "nrfitness-b87b2",
-  storageBucket: "nrfitness-b87b2.firebasestorage.app",
-  messagingSenderId: "808943460317",
-  appId: "1:808943460317:web:eeb7bfe2764b51321c6034",
+  apiKey: "AIzaSyAGzd_XvHVWDPd_RaDI_eN-95PBau5JPqY",
+  authDomain: "nrfitness2-27a91.firebaseapp.com",
+  projectId: "nrfitness2-27a91",
+  storageBucket: "nrfitness2-27a91.firebasestorage.app",
+  messagingSenderId: "1043077584185",
+  appId: "1:1043077584185:web:9348478a72bf970a7a04e8",
 };
 
 const app = initializeApp(firebaseConfig);

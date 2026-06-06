@@ -18,77 +18,73 @@ function Communication({ goBack }) {
     const [text, setText] = useState("");
     const [planData, setPlanData] = useState(null);
     const [unlocked, setUnlocked] = useState(false);
+    const [loading, setLoading] = useState(true);
 
     if (!user) {
         return (
             <div className="min-h-screen flex items-center justify-center text-white bg-black">
-                Loading user...
+                Loading...
             </div>
         );
     }
 
     useEffect(() => {
-        if (!user) return;
+        const planRef = doc(db, "planRequests", user.email);
 
-        // =========================
-        // 📩 CHAT LISTENER
-        // =========================
         const q = query(
             collection(db, "chats", user.email, "messages"),
             orderBy("createdAt", "asc")
         );
 
-        const unsub = onSnapshot(q, (snapshot) => {
+        const unsub = onSnapshot(q, (snap) => {
             setMessages(
-                snapshot.docs.map((doc) => ({
-                    id: doc.id,
-                    ...doc.data(),
+                snap.docs.map((d) => ({
+                    id: d.id,
+                    ...d.data(),
                 }))
             );
         });
 
-        // =========================
-        // 🔥 LOAD PLAN + UNLOCK LOGIC
-        // =========================
-        const fetchData = async () => {
+        const loadPlan = async () => {
             try {
-                const planRef = doc(db, "planRequests", user.email);
+                setLoading(true);
+
                 const planSnap = await getDoc(planRef);
 
-                if (planSnap.exists()) {
-                    const data = planSnap.data();
-
-                    console.log("PLAN DATA:", data); // 👈 DEBUG
-
-                    setPlanData(data);
-
-                    // 🔥 STRICT CHECK (safer)
-                    const isComplete =
-                        data.name?.trim() &&
-                        data.age &&
-                        data.goal &&
-                        data.dietPreference;
-
-                    setUnlocked(!!isComplete);
-                } else {
-                    setPlanData(null);
+                if (!planSnap.exists()) {
                     setUnlocked(false);
+                    setLoading(false);
+                    return;
                 }
 
-            } catch (error) {
-                console.error("Communication Error:", error);
+                const data = planSnap.data();
+
+                setPlanData(data);
+
+                console.log("PLAN:", data);
+
+                const isComplete =
+                    data?.name &&
+                    data?.age &&
+                    data?.goal &&
+                    data?.dietPreference &&
+                    data?.workoutPreference;
+
+                setUnlocked(Boolean(isComplete));
+                setLoading(false);
+
+            } catch (err) {
+                console.error(err);
                 setUnlocked(false);
+                setLoading(false);
             }
         };
 
-        fetchData();
+        loadPlan();
 
         return () => unsub();
     }, [user]);
 
-    // =========================
-    // 📤 SEND MESSAGE
-    // =========================
     const sendMessage = async () => {
         if (!text.trim()) return;
 
@@ -104,110 +100,93 @@ function Communication({ goBack }) {
         setText("");
     };
 
-    // =========================
-    // 🔒 LOCK SCREEN
-    // =========================
+    if (loading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center text-white">
+                Loading communication...
+            </div>
+        );
+    }
+
     if (!unlocked) {
         return (
-            <div className="min-h-screen flex items-center justify-center text-white bg-black p-4">
-
+            <div className="min-h-screen flex items-center justify-center text-white bg-black">
                 <button
                     onClick={goBack}
-                    className="absolute top-4 left-4 bg-zinc-800 px-4 py-2 rounded-lg hover:bg-zinc-700"
+                    className="absolute top-4 left-4 bg-zinc-800 px-4 py-2 rounded"
                 >
                     ← Back
                 </button>
 
-                <div className="text-center p-6 border border-zinc-800 rounded-2xl bg-zinc-900">
-                    <h2 className="text-2xl font-bold mb-3">
-                        Communication Locked 🔒
-                    </h2>
-                    <p className="text-zinc-400">
-                        Complete your fitness plan setup to unlock chat with your coach.
-                    </p>
+                <div className="text-center p-6 border border-zinc-700 rounded-xl">
+                    Communication Locked 🔒
+                    <br />
+                    Complete your plan first
                 </div>
             </div>
         );
     }
 
-    // =========================
-    // 💬 CHAT UI
-    // =========================
     return (
         <div className="min-h-screen bg-black text-white flex">
 
-            {/* BACK BUTTON */}
             <button
                 onClick={goBack}
-                className="absolute top-4 left-4 bg-zinc-800 px-4 py-2 rounded-lg hover:bg-zinc-700"
+                className="absolute top-4 left-4 bg-zinc-800 px-4 py-2 rounded"
             >
                 ← Back
             </button>
 
-            {/* CHAT SECTION */}
             <div className="w-2/3 border-r border-zinc-800 flex flex-col">
 
-                <div className="flex-1 overflow-y-auto p-4 space-y-3 mt-12">
-                    {messages.map((msg) => (
+                <div className="flex-1 overflow-y-auto p-4 space-y-2 mt-12">
+                    {messages.map((m) => (
                         <div
-                            key={msg.id}
+                            key={m.id}
                             className={`p-3 rounded-lg max-w-md ${
-                                msg.sender === "user"
+                                m.sender === "user"
                                     ? "bg-red-600 ml-auto"
                                     : "bg-zinc-800"
                             }`}
                         >
-                            {msg.text}
+                            {m.text}
                         </div>
                     ))}
                 </div>
 
-                <div className="p-4 border-t border-zinc-800 flex gap-2">
+                <div className="p-4 flex gap-2 border-t border-zinc-800">
                     <input
                         value={text}
                         onChange={(e) => setText(e.target.value)}
-                        placeholder="Type message..."
-                        className="flex-1 bg-zinc-900 border border-zinc-700 rounded-lg px-3 py-2"
+                        className="flex-1 bg-zinc-900 px-3 py-2 rounded"
+                        placeholder="Type..."
                     />
-
                     <button
                         onClick={sendMessage}
-                        className="bg-red-500 px-4 py-2 rounded-lg hover:bg-red-600"
+                        className="bg-red-500 px-4 py-2 rounded"
                     >
                         Send
                     </button>
                 </div>
             </div>
 
-            {/* PROFILE SECTION */}
-            <div className="w-1/3 p-4 space-y-4 overflow-y-auto mt-12">
-
-                <h2 className="text-xl font-bold">Your Fitness Profile</h2>
+            <div className="w-1/3 p-4 text-sm text-zinc-300 space-y-2">
+                <h2 className="text-white text-lg font-bold">
+                    Your Plan
+                </h2>
 
                 {planData ? (
-                    <div className="space-y-2 text-sm text-zinc-300">
-
-                        <p><b>Name:</b> {planData.name}</p>
-                        <p><b>Age:</b> {planData.age}</p>
-                        <p><b>Gender:</b> {planData.gender}</p>
-                        <p><b>Height:</b> {planData.height}</p>
-                        <p><b>Weight:</b> {planData.weight}</p>
-                        <p><b>Goal:</b> {planData.goal}</p>
-                        <p><b>Experience:</b> {planData.experience}</p>
-                        <p><b>Workout:</b> {planData.workoutPreference}</p>
-                        <p><b>Sleep:</b> {planData.sleepHours} hrs</p>
-                        <p><b>Days:</b> {planData.trainingDays}</p>
-                        <p><b>Diet:</b> {planData.dietPreference}</p>
-                        <p><b>Injuries:</b> {planData.injuries}</p>
-                        <p><b>Medical:</b> {planData.medicalCondition}</p>
-                        <p><b>Extra:</b> {planData.extraInfo}</p>
-
-                    </div>
+                    <>
+                        <p>Name: {planData.name}</p>
+                        <p>Age: {planData.age}</p>
+                        <p>Goal: {planData.goal}</p>
+                        <p>Diet: {planData.dietPreference}</p>
+                        <p>Workout: {planData.workoutPreference}</p>
+                    </>
                 ) : (
-                    <p className="text-zinc-500">No plan found</p>
+                    <p>No plan found</p>
                 )}
             </div>
-
         </div>
     );
 }

@@ -13,16 +13,15 @@ import FuelSection from "./component/FuelSection";
 import Footer from "./component/Footer";
 import About from "./component/About";
 import AdminDashboard from "./component/AdminDashboard";
+import Communication from "./component/Communication";
 
 function App() {
   const [user, setUser] = useState(null);
   const [showAbout, setShowAbout] = useState(false);
+  const [showCommunication, setShowCommunication] = useState(false);
 
-  const ADMIN_EMAIL =
-    "nitinr8229@gmail.com";
-
-  const isAdmin =
-    user?.email === ADMIN_EMAIL;
+  const ADMIN_EMAIL = "nitinr8229@gmail.com";
+  const isAdmin = user?.email === ADMIN_EMAIL;
 
   const handleLogout = async () => {
     try {
@@ -32,51 +31,47 @@ function App() {
     }
   };
 
-  // Firebase Auth Listener
+  // 🔥 Auth listener
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(
-      auth,
-      (currentUser) => {
-        setUser(currentUser);
-      }
-    );
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+    });
 
     return () => unsubscribe();
   }, []);
 
-  // Lock background scroll when About popup opens
+  // 🔒 Lock scroll for About modal
   useEffect(() => {
     if (showAbout) {
-      document.body.classList.add(
-        "overflow-hidden"
-      );
+      document.body.classList.add("overflow-hidden");
     } else {
-      document.body.classList.remove(
-        "overflow-hidden"
-      );
+      document.body.classList.remove("overflow-hidden");
     }
 
     return () => {
-      document.body.classList.remove(
-        "overflow-hidden"
-      );
+      document.body.classList.remove("overflow-hidden");
     };
   }, [showAbout]);
 
-  // Show Login/Signup first
+  // 🚪 Auth screen
   if (!user) {
     return (
-      <AuthModal
-        onLogin={() =>
-          setUser(auth.currentUser)
-        }
-      />
+      <AuthModal onLogin={() => setUser(auth.currentUser)} />
     );
   }
 
-  // Admin Dashboard
+  // 🧑‍💼 Admin dashboard
   if (isAdmin) {
     return <AdminDashboard />;
+  }
+
+  // 💬 Communication page (FULL SCREEN)
+  if (showCommunication) {
+    return (
+      <Communication
+        goBack={() => setShowCommunication(false)}
+      />
+    );
   }
 
   return (
@@ -87,10 +82,7 @@ function App() {
 
         {/* Logo */}
         <h1 className="text-2xl md:text-3xl font-bold">
-          <span className="text-red-500">
-            NR
-          </span>{" "}
-          FITNESS
+          <span className="text-red-500">NR</span> FITNESS
         </h1>
 
         {/* Right Side */}
@@ -100,44 +92,40 @@ function App() {
           <ul className="hidden md:flex gap-8 text-base text-gray-300 font-medium">
 
             <li>
-              <a
-                href="#home"
-                className="hover:text-white transition duration-300"
-              >
+              <a href="#home" className="hover:text-white transition">
                 Home
               </a>
             </li>
 
             <li
-              onClick={() =>
-                setShowAbout(true)
-              }
-              className="hover:text-white transition duration-300 cursor-pointer"
+              onClick={() => setShowAbout(true)}
+              className="hover:text-white transition cursor-pointer"
             >
               About
             </li>
 
             <li>
-              <a
-                href="#contact"
-                className="hover:text-white transition duration-300"
-              >
+              <a href="#contact" className="hover:text-white transition">
                 Contact
               </a>
             </li>
 
-            <li className="hover:text-white transition duration-300 cursor-pointer">
+            {/* 💬 Communication */}
+            <li
+              onClick={() => setShowCommunication(true)}
+              className="hover:text-white transition cursor-pointer"
+            >
               Communication
             </li>
 
           </ul>
 
-          {/* User Name */}
+          {/* User */}
           <div className="text-sm text-red-400 font-medium">
             {user?.email?.split("@")[0]}
           </div>
 
-          {/* Logout Button */}
+          {/* Logout */}
           <button
             onClick={handleLogout}
             className="bg-red-500 hover:bg-red-600 px-4 py-2 rounded-lg text-sm font-semibold transition"
@@ -146,7 +134,6 @@ function App() {
           </button>
 
         </div>
-
       </nav>
 
       {/* Main Sections */}
@@ -156,7 +143,7 @@ function App() {
       <FuelSection />
       <Footer />
 
-      {/* About Popup */}
+      {/* About Modal */}
       <div
         className={`fixed inset-0 z-50 flex items-center justify-center p-4 transition-all duration-500 ${
           showAbout
@@ -164,7 +151,6 @@ function App() {
             : "opacity-0 invisible"
         }`}
       >
-
         <div
           className={`relative w-full max-w-6xl max-h-[90vh] overflow-y-auto rounded-3xl border border-zinc-800 bg-black transition-all duration-500 ${
             showAbout
@@ -173,25 +159,17 @@ function App() {
           }`}
         >
 
-          {/* Close Button */}
+          {/* Close */}
           <button
-            onClick={() =>
-              setShowAbout(false)
-            }
-            className="absolute top-5 right-5 z-50 text-3xl text-white hover:text-red-500 duration-300"
+            onClick={() => setShowAbout(false)}
+            className="absolute top-5 right-5 z-50 text-3xl text-white hover:text-red-500"
           >
             ✕
           </button>
 
-          {/* About Component */}
-          <About
-            closeAbout={() =>
-              setShowAbout(false)
-            }
-          />
+          <About closeAbout={() => setShowAbout(false)} />
 
         </div>
-
       </div>
 
     </div>

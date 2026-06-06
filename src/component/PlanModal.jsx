@@ -5,7 +5,7 @@ import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 
 
 function PlanModal({ showModal, setShowModal }) {
-    const [showSuccess, setShowSuccess] = useState(false);
+    // const [showSuccess, setShowSuccess] = useState(false);
     const [submitted, setSubmitted] = useState(false);
 
     const [formData, setFormData] = useState({

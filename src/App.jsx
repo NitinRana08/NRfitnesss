@@ -1,7 +1,10 @@
 import { useState, useEffect } from "react";
 import AuthModal from "./component/AuthModal";
 import { auth } from "./firebase";
-import { onAuthStateChanged } from "firebase/auth";
+import {
+  onAuthStateChanged,
+  signOut,
+} from "firebase/auth";
 
 import Hero from "./component/Hero";
 import InfoSection from "./component/InfoSection";
@@ -9,18 +12,25 @@ import DisciplineBanner from "./component/DisciplineBanner";
 import FuelSection from "./component/FuelSection";
 import Footer from "./component/Footer";
 import About from "./component/About";
-import { signOut } from "firebase/auth";
 import AdminDashboard from "./component/AdminDashboard";
-
 
 function App() {
   const [user, setUser] = useState(null);
   const [showAbout, setShowAbout] = useState(false);
+
   const ADMIN_EMAIL =
     "nitinr8229@gmail.com";
 
   const isAdmin =
     user?.email === ADMIN_EMAIL;
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   // Firebase Auth Listener
   useEffect(() => {
@@ -37,13 +47,19 @@ function App() {
   // Lock background scroll when About popup opens
   useEffect(() => {
     if (showAbout) {
-      document.body.classList.add("overflow-hidden");
+      document.body.classList.add(
+        "overflow-hidden"
+      );
     } else {
-      document.body.classList.remove("overflow-hidden");
+      document.body.classList.remove(
+        "overflow-hidden"
+      );
     }
 
     return () => {
-      document.body.classList.remove("overflow-hidden");
+      document.body.classList.remove(
+        "overflow-hidden"
+      );
     };
   }, [showAbout]);
 
@@ -51,10 +67,14 @@ function App() {
   if (!user) {
     return (
       <AuthModal
-        onLogin={() => setUser(auth.currentUser)}
+        onLogin={() =>
+          setUser(auth.currentUser)
+        }
       />
     );
   }
+
+  // Admin Dashboard
   if (isAdmin) {
     return <AdminDashboard />;
   }
@@ -67,48 +87,65 @@ function App() {
 
         {/* Logo */}
         <h1 className="text-2xl md:text-3xl font-bold">
-          <span className="text-red-500">NR</span> FITNESS
+          <span className="text-red-500">
+            NR
+          </span>{" "}
+          FITNESS
         </h1>
 
-        {/* Nav Links */}
-        <ul className="hidden md:flex gap-8 text-base text-gray-300 font-medium">
+        {/* Right Side */}
+        <div className="flex items-center gap-6">
 
-          <li>
-            <a
-              href="#home"
-              className="hover:text-white transition duration-300"
-            >
-              Home
-            </a>
-          </li>
+          {/* Nav Links */}
+          <ul className="hidden md:flex gap-8 text-base text-gray-300 font-medium">
 
-          <li
-            onClick={() => setShowAbout(true)}
-            className="hover:text-white transition duration-300 cursor-pointer"
-          >
-            About
-          </li>
+            <li>
+              <a
+                href="#home"
+                className="hover:text-white transition duration-300"
+              >
+                Home
+              </a>
+            </li>
 
-          <li>
-            <a
-              href="#contact"
+            <li
+              onClick={() =>
+                setShowAbout(true)
+              }
               className="hover:text-white transition duration-300 cursor-pointer"
             >
-              Contact
-            </a>
-          </li>
+              About
+            </li>
 
-          <li className="hover:text-white transition duration-300 cursor-pointer">
-            Communication
-          </li>
+            <li>
+              <a
+                href="#contact"
+                className="hover:text-white transition duration-300"
+              >
+                Contact
+              </a>
+            </li>
+
+            <li className="hover:text-white transition duration-300 cursor-pointer">
+              Communication
+            </li>
+
+          </ul>
+
+          {/* User Name */}
+          <div className="text-sm text-red-400 font-medium">
+            {user?.email?.split("@")[0]}
+          </div>
+
+          {/* Logout Button */}
           <button
-            onClick={() => signOut(auth)}
-            className="bg-red-500 px-4 py-2 rounded-lg"
+            onClick={handleLogout}
+            className="bg-red-500 hover:bg-red-600 px-4 py-2 rounded-lg text-sm font-semibold transition"
           >
             Logout
           </button>
 
-        </ul>
+        </div>
 
       </nav>
 
@@ -121,33 +158,40 @@ function App() {
 
       {/* About Popup */}
       <div
-        className={`fixed inset-0 z-50 flex items-center justify-center p-4 transition-all duration-500
-        ${showAbout
+        className={`fixed inset-0 z-50 flex items-center justify-center p-4 transition-all duration-500 ${
+          showAbout
             ? "opacity-100 visible bg-black/80 backdrop-blur-sm"
             : "opacity-0 invisible"
-          }`}
+        }`}
       >
 
         <div
-          className={`relative w-full max-w-6xl max-h-[90vh] overflow-y-auto rounded-3xl border border-zinc-800 bg-black transition-all duration-500
-          ${showAbout
+          className={`relative w-full max-w-6xl max-h-[90vh] overflow-y-auto rounded-3xl border border-zinc-800 bg-black transition-all duration-500 ${
+            showAbout
               ? "scale-100 translate-y-0"
               : "scale-90 translate-y-10"
-            }`}
+          }`}
         >
 
           {/* Close Button */}
           <button
-            onClick={() => setShowAbout(false)}
+            onClick={() =>
+              setShowAbout(false)
+            }
             className="absolute top-5 right-5 z-50 text-3xl text-white hover:text-red-500 duration-300"
           >
             ✕
           </button>
 
           {/* About Component */}
-          <About closeAbout={() => setShowAbout(false)} />
+          <About
+            closeAbout={() =>
+              setShowAbout(false)
+            }
+          />
 
         </div>
+
       </div>
 
     </div>

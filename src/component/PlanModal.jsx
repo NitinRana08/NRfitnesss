@@ -38,12 +38,53 @@ function PlanModal({ showModal, setShowModal }) {
     const [step, setStep] = useState(1);
 
     const handleSubmitPlan = async () => {
+        try {
 
-    console.log("BUTTON CLICKED");
+            await addDoc(
+                collection(db, "planRequests"),
+                {
+                    ...formData,
 
-    alert("Generate Plan Clicked");
+                    userEmail: auth.currentUser?.email,
 
-};
+                    status: "Pending",
+
+                    createdAt: serverTimestamp(),
+                }
+            );
+
+            setSubmitted(true);
+            setStep(1);
+
+            setFormData({
+                name: "",
+                age: "",
+                gender: "",
+                height: "",
+                weight: "",
+                heightUnit: "cm",
+                weightUnit: "kg",
+                goal: "",
+                experience: "",
+                workoutPreference: "",
+                sleepHours: "",
+                trainingDays: "",
+                dietPreference: "",
+                injuries: "",
+                medicalCondition: "",
+                extraInfo: "",
+            });
+
+        } catch (error) {
+
+            console.error(error);
+
+            alert(
+                "Failed to submit request."
+            );
+
+        }
+    };
     const handleNext = () => {
 
 

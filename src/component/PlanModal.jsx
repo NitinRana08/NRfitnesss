@@ -40,19 +40,25 @@ function PlanModal({ showModal, setShowModal }) {
     const handleSubmitPlan = async () => {
         try {
 
-            await addDoc(
+            const docRef = await addDoc(
                 collection(db, "planRequests"),
                 {
                     ...formData,
-
                     userEmail: auth.currentUser?.email,
-
                     status: "Pending",
-
                     createdAt: serverTimestamp(),
                 }
             );
 
+            localStorage.setItem(
+                "activeRequestId",
+                docRef.id
+            );
+
+            localStorage.setItem(
+                "activeRequestId",
+                docRef.id
+            );
             setSubmitted(true);
             setStep(1);
 

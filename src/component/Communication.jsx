@@ -1,192 +1,258 @@
-import { useEffect, useState } from "react";
-import { auth, db } from "../firebase";
+import { useState, useEffect } from "react";
+import { db } from "../firebase";
+import { doc, getDoc } from "firebase/firestore";
+import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import {
-    collection,
     doc,
-    onSnapshot,
-    orderBy,
-    query,
+    getDoc,
+    collection,
     addDoc,
     serverTimestamp,
-    getDoc,
 } from "firebase/firestore";
 
+
 function Communication({ goBack }) {
-    const user = auth.currentUser;
-
-    const [messages, setMessages] = useState([]);
-    const [text, setText] = useState("");
-    const [planData, setPlanData] = useState(null);
-    const [unlocked, setUnlocked] = useState(false);
-    const [loading, setLoading] = useState(true);
-
-    if (!user) {
-        return (
-            <div className="min-h-screen flex items-center justify-center text-white bg-black">
-                Loading...
-            </div>
-        );
-    }
+    const [showDetails, setShowDetails] = useState(false);
+    const [requestData, setRequestData] = useState(null);
+    const [message, setMessage] = useState("");
 
     useEffect(() => {
-        const planRef = doc(db, "planRequests", user.email);
-
-        const q = query(
-            collection(db, "chats", user.email, "messages"),
-            orderBy("createdAt", "asc")
-        );
-
-        const unsub = onSnapshot(q, (snap) => {
-            setMessages(
-                snap.docs.map((d) => ({
-                    id: d.id,
-                    ...d.data(),
-                }))
-            );
-        });
-
-        const loadPlan = async () => {
+        const fetchRequest = async () => {
             try {
-                setLoading(true);
+                const requestId =
+                    localStorage.getItem("activeRequestId");
 
-                const planSnap = await getDoc(planRef);
+                if (!requestId) return;
 
-                if (!planSnap.exists()) {
-                    setUnlocked(false);
-                    setLoading(false);
-                    return;
+                const docRef = doc(
+                    db,
+                    "planRequests",
+                    requestId
+                );
+
+                const docSnap = await getDoc(docRef);
+
+                if (docSnap.exists()) {
+                    setRequestData(docSnap.data());
                 }
-
-                const data = planSnap.data();
-
-                setPlanData(data);
-
-                console.log("PLAN:", data);
-
-                const isComplete =
-                    data?.name &&
-                    data?.age &&
-                    data?.goal &&
-                    data?.dietPreference &&
-                    data?.workoutPreference;
-
-                setUnlocked(Boolean(isComplete));
-                setLoading(false);
-
-            } catch (err) {
-                console.error(err);
-                setUnlocked(false);
-                setLoading(false);
+            } catch (error) {
+                console.error(error);
             }
         };
 
-        loadPlan();
+        fetchRequest();
+    }, []);
+    const handleSendMessage = async () => {
+        try {
+            if (!message.trim()) return;
 
-        return () => unsub();
-    }, [user]);
+            const requestId =
+                localStorage.getItem("activeRequestId");
 
-    const sendMessage = async () => {
-        if (!text.trim()) return;
+            if (!requestId) return;
 
-        await addDoc(
-            collection(db, "chats", user.email, "messages"),
-            {
-                text,
-                sender: "user",
-                createdAt: serverTimestamp(),
-            }
-        );
+            await addDoc(
+                collection(
+                    db,
+                    "planRequests",
+                    requestId,
+                    "messages"
+                ),
+                {
+                    sender: "user",
+                    text: message,
+                    createdAt: serverTimestamp(),
+                }
+            );
 
-        setText("");
+            setMessage("");
+        } catch (error) {
+            console.error(error);
+        }
     };
 
-    if (loading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center text-white">
-                Loading communication...
-            </div>
-        );
-    }
+    return (
+        <div className="min-h-screen bg-black text-white p-4 md:p-6">
 
-    if (!unlocked) {
-        return (
-            <div className="min-h-screen flex items-center justify-center text-white bg-black">
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-zinc-800 pb-4 mb-6">
+                <h1 className="text-2xl md:text-3xl font-bold">
+                    Communication Center
+                </h1>
+
                 <button
                     onClick={goBack}
-                    className="absolute top-4 left-4 bg-zinc-800 px-4 py-2 rounded"
+                    className="bg-red-500 hover:bg-red-600 px-4 py-2 rounded-lg font-medium transition"
                 >
-                    ← Back
+                    Back
+                </button>
+            </div>
+
+            {/* Mobile Toggle */}
+            <div className="lg:hidden flex gap-2 mb-4">
+                <button
+                    onClick={() => setShowDetails(false)}
+                    className={`flex-1 py-2 rounded-lg transition ${!showDetails
+                        ? "bg-red-500"
+                        : "bg-zinc-800"
+                        }`}
+                >
+                    Chat
                 </button>
 
-                <div className="text-center p-6 border border-zinc-700 rounded-xl">
-                    Communication Locked 🔒
-                    <br />
-                    Complete your plan first
-                </div>
+                <button
+                    onClick={() => setShowDetails(true)}
+                    className={`flex-1 py-2 rounded-lg transition ${showDetails
+                        ? "bg-red-500"
+                        : "bg-zinc-800"
+                        }`}
+                >
+                    Details
+                </button>
             </div>
-        );
-    }
 
-    return (
-        <div className="min-h-screen bg-black text-white flex">
+            {/* Main Layout */}
+            <div className="grid lg:grid-cols-3 gap-6">
 
-            <button
-                onClick={goBack}
-                className="absolute top-4 left-4 bg-zinc-800 px-4 py-2 rounded"
-            >
-                ← Back
-            </button>
+                {/* Chat Section */}
+                <div
+                    className={`
+            lg:col-span-2
+            bg-zinc-900
+            border border-zinc-800
+            rounded-2xl
+            flex flex-col
+            ${showDetails
+                            ? "hidden lg:flex"
+                            : "flex"
+                        }
+          `}
+                >
 
-            <div className="w-2/3 border-r border-zinc-800 flex flex-col">
+                    <div className="p-4 border-b border-zinc-800">
+                        <h2 className="font-semibold text-lg">
+                            Coach Chat
+                        </h2>
+                    </div>
 
-                <div className="flex-1 overflow-y-auto p-4 space-y-2 mt-12">
-                    {messages.map((m) => (
-                        <div
-                            key={m.id}
-                            className={`p-3 rounded-lg max-w-md ${
-                                m.sender === "user"
-                                    ? "bg-red-600 ml-auto"
-                                    : "bg-zinc-800"
-                            }`}
-                        >
-                            {m.text}
+                    <div className="p-4 min-h-[400px]">
+                        <div className="bg-zinc-800 p-3 rounded-xl w-fit max-w-xs">
+                            Welcome to NR Fitness 💪
                         </div>
-                    ))}
+                    </div>
+
+                    <div className="p-4 border-t border-zinc-800 flex gap-3">
+                        <input
+                            type="text"
+                            value={message}
+                            onChange={(e) =>
+                                setMessage(e.target.value)
+                            }
+                            placeholder="Type your message..."
+                            className="flex-1 bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 outline-none focus:border-red-500"
+                        />
+
+                        <button
+                            onClick={handleSendMessage}
+                            className="bg-red-500 hover:bg-red-600 px-5 rounded-xl transition"
+                        >
+                            Send
+                        </button>
+                    </div>
+
                 </div>
 
-                <div className="p-4 flex gap-2 border-t border-zinc-800">
-                    <input
-                        value={text}
-                        onChange={(e) => setText(e.target.value)}
-                        className="flex-1 bg-zinc-900 px-3 py-2 rounded"
-                        placeholder="Type..."
-                    />
-                    <button
-                        onClick={sendMessage}
-                        className="bg-red-500 px-4 py-2 rounded"
-                    >
-                        Send
-                    </button>
+                {/* Details Section */}
+                <div
+                    className={`
+            bg-zinc-900
+            border border-zinc-800
+            rounded-2xl
+            p-5
+            ${showDetails
+                            ? "block"
+                            : "hidden lg:block"
+                        }
+          `}
+                >
+
+                    <h2 className="text-lg font-semibold mb-5">
+                        Your Details
+                    </h2>
+
+                    <div className="space-y-4">
+
+                        <div>
+                            <p className="text-zinc-400 text-sm">
+                                Name
+                            </p>
+                            <p>
+                                {requestData?.name || "Loading..."}
+                            </p>
+                        </div>
+
+                        <div>
+                            <p className="text-zinc-400 text-sm">
+                                Goal
+                            </p>
+                            <p>
+                                {requestData?.goal || "Loading..."}
+                            </p>
+                        </div>
+
+                        <div>
+                            <p className="text-zinc-400 text-sm">
+                                Weight
+                            </p>
+                            <p>
+                                {requestData?.weight
+                                    ? `${requestData.weight} ${requestData.weightUnit}`
+                                    : "Loading..."}
+                            </p>
+                        </div>
+
+                        <div>
+                            <p className="text-zinc-400 text-sm">
+                                Experience
+                            </p>
+                            <p>
+                                {requestData?.experience || "Loading..."}
+                            </p>
+                        </div>
+
+                        <div>
+                            <p className="text-zinc-400 text-sm">
+                                Diet Preference
+                            </p>
+                            <p>
+                                {requestData?.dietPreference || "Loading..."}
+                            </p>
+                        </div>
+
+                        <div>
+                            <p className="text-zinc-400 text-sm">
+                                Training Days
+                            </p>
+                            <p>
+                                {requestData?.trainingDays || "Loading..."}
+                            </p>
+                        </div>
+
+                        <div>
+                            <p className="text-zinc-400 text-sm">
+                                Sleep Hours
+                            </p>
+                            <p>
+                                {requestData?.sleepHours || "Loading..."}
+                            </p>
+                        </div>
+
+                    </div>
+
                 </div>
+
             </div>
 
-            <div className="w-1/3 p-4 text-sm text-zinc-300 space-y-2">
-                <h2 className="text-white text-lg font-bold">
-                    Your Plan
-                </h2>
-
-                {planData ? (
-                    <>
-                        <p>Name: {planData.name}</p>
-                        <p>Age: {planData.age}</p>
-                        <p>Goal: {planData.goal}</p>
-                        <p>Diet: {planData.dietPreference}</p>
-                        <p>Workout: {planData.workoutPreference}</p>
-                    </>
-                ) : (
-                    <p>No plan found</p>
-                )}
-            </div>
         </div>
     );
 }

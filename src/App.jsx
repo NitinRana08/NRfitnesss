@@ -20,6 +20,7 @@ function App() {
   const [showAbout, setShowAbout] = useState(false);
   const [showCommunication, setShowCommunication] = useState(false);
 
+
   const ADMIN_EMAIL = "nitinr8229@gmail.com";
   const isAdmin = user?.email === ADMIN_EMAIL;
 
@@ -73,6 +74,8 @@ function App() {
       />
     );
   }
+  const hasRequest =
+    localStorage.getItem("activeRequestId");
 
   return (
     <div className="bg-black text-white min-h-screen">
@@ -112,7 +115,19 @@ function App() {
 
             {/* 💬 Communication */}
             <li
-              onClick={() => setShowCommunication(true)}
+              onClick={() => {
+                const requestId =
+                  localStorage.getItem("activeRequestId");
+
+                if (!requestId) {
+                  alert(
+                    "Please submit a plan request first."
+                  );
+                  return;
+                }
+
+                setShowCommunication(true);
+              }}
               className="hover:text-white transition cursor-pointer"
             >
               Communication
@@ -145,18 +160,16 @@ function App() {
 
       {/* About Modal */}
       <div
-        className={`fixed inset-0 z-50 flex items-center justify-center p-4 transition-all duration-500 ${
-          showAbout
-            ? "opacity-100 visible bg-black/80 backdrop-blur-sm"
-            : "opacity-0 invisible"
-        }`}
+        className={`fixed inset-0 z-50 flex items-center justify-center p-4 transition-all duration-500 ${showAbout
+          ? "opacity-100 visible bg-black/80 backdrop-blur-sm"
+          : "opacity-0 invisible"
+          }`}
       >
         <div
-          className={`relative w-full max-w-6xl max-h-[90vh] overflow-y-auto rounded-3xl border border-zinc-800 bg-black transition-all duration-500 ${
-            showAbout
-              ? "scale-100 translate-y-0"
-              : "scale-90 translate-y-10"
-          }`}
+          className={`relative w-full max-w-6xl max-h-[90vh] overflow-y-auto rounded-3xl border border-zinc-800 bg-black transition-all duration-500 ${showAbout
+            ? "scale-100 translate-y-0"
+            : "scale-90 translate-y-10"
+            }`}
         >
 
           {/* Close */}

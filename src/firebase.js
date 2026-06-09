@@ -1,9 +1,14 @@
 import { initializeApp } from "firebase/app";
 
 import {
-  getAuth,
-  GoogleAuthProvider,
-} from "firebase/auth";
+    collection,
+    getDocs,
+    addDoc,
+    serverTimestamp,
+    query,
+    orderBy,
+    onSnapshot,
+} from "firebase/firestore";
 
 import {
   getFirestore,

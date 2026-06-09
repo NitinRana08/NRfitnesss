@@ -1,20 +1,21 @@
 import { useState, useEffect } from "react";
 import { db } from "../firebase";
-import { doc, getDoc } from "firebase/firestore";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
 import {
     doc,
     getDoc,
     collection,
     addDoc,
     serverTimestamp,
+    query,
+    orderBy,
+    onSnapshot,
 } from "firebase/firestore";
-
 
 function Communication({ goBack }) {
     const [showDetails, setShowDetails] = useState(false);
     const [requestData, setRequestData] = useState(null);
     const [message, setMessage] = useState("");
+    const [messages, setMessages] = useState([]);
 
     useEffect(() => {
         const fetchRequest = async () => {
@@ -41,6 +42,33 @@ function Communication({ goBack }) {
         };
 
         fetchRequest();
+    }, []);
+    useEffect(() => {
+        const requestId =
+            localStorage.getItem("activeRequestId");
+
+        if (!requestId) return;
+
+        const q = query(
+            collection(
+                db,
+                "planRequests",
+                requestId,
+                "messages"
+            ),
+            orderBy("createdAt", "asc")
+        );
+
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            const msgs = snapshot.docs.map((doc) => ({
+                id: doc.id,
+                ...doc.data(),
+            }));
+
+            setMessages(msgs);
+        });
+
+        return () => unsubscribe();
     }, []);
     const handleSendMessage = async () => {
         try {
@@ -135,10 +163,24 @@ function Communication({ goBack }) {
                         </h2>
                     </div>
 
-                    <div className="p-4 min-h-[400px]">
-                        <div className="bg-zinc-800 p-3 rounded-xl w-fit max-w-xs">
-                            Welcome to NR Fitness 💪
-                        </div>
+                    <div className="p-4 min-h-[400px] space-y-3 overflow-y-auto">
+                        {messages.length === 0 ? (
+                            <div className="bg-zinc-800 p-3 rounded-xl w-fit max-w-xs">
+                                Welcome to NR Fitness 💪
+                            </div>
+                        ) : (
+                            messages.map((msg) => (
+                                <div
+                                    key={msg.id}
+                                    className={`p-3 rounded-xl max-w-xs ${msg.sender === "user"
+                                            ? "bg-red-500 ml-auto"
+                                            : "bg-zinc-800"
+                                        }`}
+                                >
+                                    {msg.text}
+                                </div>
+                            ))
+                        )}
                     </div>
 
                     <div className="p-4 border-t border-zinc-800 flex gap-3">

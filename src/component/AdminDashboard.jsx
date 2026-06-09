@@ -1,10 +1,15 @@
 import { useEffect, useState } from "react";
-import { db } from "../firebase";
-import { collection, getDocs } from "firebase/firestore";
-
-import { auth } from "../firebase";
+import { db, auth } from "../firebase";
+import {
+    collection,
+    getDocs,
+    query,
+    orderBy,
+    onSnapshot,
+    addDoc,
+    serverTimestamp,
+} from "firebase/firestore";
 import { signOut } from "firebase/auth";
-
 
 function AdminDashboard() {
     const [requests, setRequests] = useState([]);
@@ -32,13 +37,7 @@ function AdminDashboard() {
 
         fetchRequests();
     }, []);
-    const handleLogout = async () => {
-        try {
-            await signOut(auth);
-        } catch (error) {
-            console.error(error);
-        }
-    };
+
     useEffect(() => {
         if (!selectedRequest) return;
 
@@ -64,26 +63,60 @@ function AdminDashboard() {
         return () => unsubscribe();
     }, [selectedRequest]);
 
+    const handleLogout = async () => {
+        try {
+            await signOut(auth);
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
+    const handleSendReply = async () => {
+        try {
+            if (!adminMessage.trim()) return;
+            if (!selectedRequest) return;
+
+            await addDoc(
+                collection(
+                    db,
+                    "planRequests",
+                    selectedRequest.id,
+                    "messages"
+                ),
+                {
+                    sender: "admin",
+                    text: adminMessage,
+                    createdAt: serverTimestamp(),
+                }
+            );
+
+            setAdminMessage("");
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
     return (
         <div className="min-h-screen bg-black text-white p-6">
-            <h1 className="text-4xl font-bold text-red-500 mb-6">
-                Admin Dashboard
-            </h1>
-            <button
-                onClick={handleLogout}
-                className="mb-6 bg-red-500 hover:bg-red-600 px-4 py-2 rounded-lg"
-            >
-                Logout
-            </button>
+            <div className="flex justify-between items-center mb-6">
+                <h1 className="text-4xl font-bold text-red-500">
+                    Admin Dashboard
+                </h1>
 
-            {/* Requests List */}
+                <button
+                    onClick={handleLogout}
+                    className="bg-red-500 hover:bg-red-600 px-4 py-2 rounded-lg"
+                >
+                    Logout
+                </button>
+            </div>
+
+            {/* Requests */}
             <div className="space-y-4">
                 {requests.map((request) => (
                     <div
                         key={request.id}
-                        onClick={() => {
-                            setSelectedRequest(request);
-                        }}
+                        onClick={() => setSelectedRequest(request)}
                         className="bg-zinc-900 border border-zinc-800 rounded-xl p-4 cursor-pointer hover:border-red-500 transition"
                     >
                         <h2 className="font-bold text-lg">
@@ -101,129 +134,114 @@ function AdminDashboard() {
                 ))}
             </div>
 
-            {/* Selected Request Panel */}
             {selectedRequest && (
                 <div className="mt-8 bg-zinc-900 border border-zinc-800 rounded-xl p-6">
-                    <h2 className="text-2xl font-bold mb-4">
+
+                    <h2 className="text-2xl font-bold mb-6">
                         {selectedRequest.name}
                     </h2>
 
+                    {/* User Details */}
                     <div className="grid md:grid-cols-2 gap-4 text-sm">
 
                         <p><strong>Name:</strong> {selectedRequest.name}</p>
-
                         <p><strong>Email:</strong> {selectedRequest.userEmail}</p>
 
                         <p><strong>Age:</strong> {selectedRequest.age}</p>
-
                         <p><strong>Gender:</strong> {selectedRequest.gender}</p>
 
                         <p><strong>Goal:</strong> {selectedRequest.goal}</p>
 
                         <p>
-                            <strong>Height:</strong>
-                            {" "}
-                            {selectedRequest.height}
-                            {" "}
+                            <strong>Height:</strong>{" "}
+                            {selectedRequest.height}{" "}
                             {selectedRequest.heightUnit}
                         </p>
 
                         <p>
-                            <strong>Weight:</strong>
-                            {" "}
-                            {selectedRequest.weight}
-                            {" "}
+                            <strong>Weight:</strong>{" "}
+                            {selectedRequest.weight}{" "}
                             {selectedRequest.weightUnit}
                         </p>
 
                         <p>
-                            <strong>Experience:</strong>
-                            {" "}
+                            <strong>Experience:</strong>{" "}
                             {selectedRequest.experience}
                         </p>
 
                         <p>
-                            <strong>Diet:</strong>
-                            {" "}
+                            <strong>Diet:</strong>{" "}
                             {selectedRequest.dietPreference}
                         </p>
 
                         <p>
-                            <strong>Workout:</strong>
-                            {" "}
+                            <strong>Workout:</strong>{" "}
                             {selectedRequest.workoutPreference}
                         </p>
 
                         <p>
-                            <strong>Training Days:</strong>
-                            {" "}
+                            <strong>Training Days:</strong>{" "}
                             {selectedRequest.trainingDays}
                         </p>
 
                         <p>
-                            <strong>Sleep Hours:</strong>
-                            {" "}
+                            <strong>Sleep Hours:</strong>{" "}
                             {selectedRequest.sleepHours}
                         </p>
 
                     </div>
 
                     <div className="mt-4">
-
-                        <p>
-                            <strong>Medical Condition:</strong>
-                        </p>
-
+                        <strong>Medical Condition:</strong>
                         <p className="text-zinc-400">
                             {selectedRequest.medicalCondition}
                         </p>
-
                     </div>
 
                     <div className="mt-4">
-
-                        <p>
-                            <strong>Injuries:</strong>
-                        </p>
-
+                        <strong>Injuries:</strong>
                         <p className="text-zinc-400">
                             {selectedRequest.injuries}
                         </p>
-
                     </div>
 
                     <div className="mt-4">
-
-                        <p>
-                            <strong>Extra Info:</strong>
-                        </p>
-
+                        <strong>Extra Info:</strong>
                         <p className="text-zinc-400">
                             {selectedRequest.extraInfo}
                         </p>
-
                     </div>
+
+                    {/* Chat */}
                     <div className="mt-6 bg-zinc-950 rounded-xl p-4 h-80 overflow-y-auto">
-                        {messages.map((msg) => (
-                            <div
-                                key={msg.id}
-                                className={`mb-3 p-3 rounded-xl max-w-xs ${msg.sender === "admin"
-                                        ? "bg-red-500 ml-auto"
-                                        : "bg-zinc-700"
+                        {messages.length === 0 ? (
+                            <p className="text-zinc-500">
+                                No messages yet.
+                            </p>
+                        ) : (
+                            messages.map((msg) => (
+                                <div
+                                    key={msg.id}
+                                    className={`mb-3 p-3 rounded-xl max-w-xs ${
+                                        msg.sender === "admin"
+                                            ? "bg-red-500 ml-auto"
+                                            : "bg-zinc-700"
                                     }`}
-                            >
-                                <p className="text-xs opacity-70 mb-1">
-                                    {msg.sender === "admin"
-                                        ? "You"
-                                        : "User"}
-                                </p>
+                                >
+                                    <p className="text-xs opacity-70 mb-1">
+                                        {msg.sender === "admin"
+                                            ? "You"
+                                            : "User"}
+                                    </p>
 
-                                {msg.text}
-                            </div>
-                        ))}
+                                    {msg.text}
+                                </div>
+                            ))
+                        )}
                     </div>
 
-                    <div className="mt-6">
+                    {/* Message Input */}
+                    <div className="mt-6 flex gap-3">
                         <input
                             type="text"
                             value={adminMessage}
@@ -231,15 +249,17 @@ function AdminDashboard() {
                                 setAdminMessage(e.target.value)
                             }
                             placeholder="Reply to user..."
-                            className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 outline-none focus:border-red-500"
+                            className="flex-1 bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 outline-none focus:border-red-500"
                         />
+
+                        <button
+                            onClick={handleSendReply}
+                            className="bg-red-500 hover:bg-red-600 px-5 rounded-xl transition"
+                        >
+                            Send
+                        </button>
                     </div>
 
-                    <button
-                        className="mt-4 bg-red-500 hover:bg-red-600 px-5 py-2 rounded-lg transition"
-                    >
-                        Send Reply
-                    </button>
                 </div>
             )}
         </div>

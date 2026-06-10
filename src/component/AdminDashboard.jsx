@@ -10,13 +10,14 @@ import {
     serverTimestamp,
 } from "firebase/firestore";
 import { signOut } from "firebase/auth";
+import { uploadImageToCloudinary } from "../utils/cloudinary";
 
 function AdminDashboard() {
     const [requests, setRequests] = useState([]);
     const [selectedRequest, setSelectedRequest] = useState(null);
     const [adminMessage, setAdminMessage] = useState("");
     const [messages, setMessages] = useState([]);
-
+    const [image, setImage] = useState(null);
     useEffect(() => {
         const fetchRequests = async () => {
             try {
@@ -73,24 +74,50 @@ function AdminDashboard() {
 
     const handleSendReply = async () => {
         try {
-            if (!adminMessage.trim()) return;
             if (!selectedRequest) return;
 
-            await addDoc(
-                collection(
-                    db,
-                    "planRequests",
-                    selectedRequest.id,
-                    "messages"
-                ),
-                {
-                    sender: "admin",
-                    text: adminMessage,
-                    createdAt: serverTimestamp(),
-                }
-            );
+            // Text message
+            if (adminMessage.trim()) {
+                await addDoc(
+                    collection(
+                        db,
+                        "planRequests",
+                        selectedRequest.id,
+                        "messages"
+                    ),
+                    {
+                        sender: "admin",
+                        type: "text",
+                        text: adminMessage,
+                        createdAt: serverTimestamp(),
+                    }
+                );
+            }
+
+            // Image message
+            if (image) {
+                const imageUrl =
+                    await uploadImageToCloudinary(image);
+
+                await addDoc(
+                    collection(
+                        db,
+                        "planRequests",
+                        selectedRequest.id,
+                        "messages"
+                    ),
+                    {
+                        sender: "admin",
+                        type: "image",
+                        imageUrl,
+                        createdAt: serverTimestamp(),
+                    }
+                );
+            }
 
             setAdminMessage("");
+            setImage(null);
+
         } catch (error) {
             console.error(error);
         }
@@ -222,11 +249,10 @@ function AdminDashboard() {
                             messages.map((msg) => (
                                 <div
                                     key={msg.id}
-                                    className={`mb-3 p-3 rounded-xl max-w-xs ${
-                                        msg.sender === "admin"
-                                            ? "bg-red-500 ml-auto"
-                                            : "bg-zinc-700"
-                                    }`}
+                                    className={`mb-3 p-3 rounded-xl max-w-xs ${msg.sender === "admin"
+                                        ? "bg-red-500 ml-auto"
+                                        : "bg-zinc-700"
+                                        }`}
                                 >
                                     <p className="text-xs opacity-70 mb-1">
                                         {msg.sender === "admin"
@@ -234,11 +260,22 @@ function AdminDashboard() {
                                             : "User"}
                                     </p>
 
-                                    {msg.text}
+                                    <>
+                                        {msg.type === "image" ? (
+                                            <img
+                                                src={msg.imageUrl}
+                                                alt="chat"
+                                                className="max-w-[250px] rounded-lg"
+                                            />
+                                        ) : (
+                                            msg.text
+                                        )}
+                                    </>
                                 </div>
                             ))
                         )}
                     </div>
+
 
                     {/* Message Input */}
                     <div className="mt-6 flex gap-3">
@@ -251,7 +288,14 @@ function AdminDashboard() {
                             placeholder="Reply to user..."
                             className="flex-1 bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 outline-none focus:border-red-500"
                         />
-
+                        <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) =>
+                                setImage(e.target.files[0])
+                            }
+                            className="text-sm"
+                        />
                         <button
                             onClick={handleSendReply}
                             className="bg-red-500 hover:bg-red-600 px-5 rounded-xl transition"

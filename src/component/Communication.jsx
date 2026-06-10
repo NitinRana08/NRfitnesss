@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState, useRef } from "react";
 import { db } from "../firebase";
 import {
     doc,
@@ -18,6 +18,7 @@ function Communication({ goBack }) {
     const [message, setMessage] = useState("");
     const [messages, setMessages] = useState([]);
     const [image, setImage] = useState(null);
+    const messagesEndRef = useRef(null);
 
     useEffect(() => {
         const fetchRequest = async () => {
@@ -125,6 +126,11 @@ function Communication({ goBack }) {
             console.error(error);
         }
     };
+    useEffect(() => {
+        messagesEndRef.current?.scrollIntoView({
+            behavior: "smooth",
+        });
+    }, [messages]);
 
     return (
         <div className="min-h-screen bg-black text-white p-4 md:p-6">
@@ -190,7 +196,7 @@ function Communication({ goBack }) {
                         </h2>
                     </div>
 
-                    <div className="p-4 min-h-[400px] space-y-3 overflow-y-auto">
+                    <div className="p-4 h-[400px] overflow-y-auto space-y-3">
                         {messages.length === 0 ? (
                             <div className="bg-zinc-800 p-3 rounded-xl w-fit max-w-xs">
                                 Welcome to NR Fitness 💪
@@ -218,6 +224,7 @@ function Communication({ goBack }) {
                                 </div>
                             ))
                         )}
+                        <div ref={messagesEndRef}></div>
                     </div>
 
                     <div className="p-4 border-t border-zinc-800 flex gap-3">

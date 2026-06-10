@@ -10,12 +10,14 @@ import {
     orderBy,
     onSnapshot,
 } from "firebase/firestore";
+import { uploadImageToCloudinary } from "../utils/cloudinary";
 
 function Communication({ goBack }) {
     const [showDetails, setShowDetails] = useState(false);
     const [requestData, setRequestData] = useState(null);
     const [message, setMessage] = useState("");
     const [messages, setMessages] = useState([]);
+    const [image, setImage] = useState(null);
 
     useEffect(() => {
         const fetchRequest = async () => {
@@ -72,28 +74,53 @@ function Communication({ goBack }) {
     }, []);
     const handleSendMessage = async () => {
         try {
-            if (!message.trim()) return;
-
             const requestId =
                 localStorage.getItem("activeRequestId");
 
             if (!requestId) return;
 
-            await addDoc(
-                collection(
-                    db,
-                    "planRequests",
-                    requestId,
-                    "messages"
-                ),
-                {
-                    sender: "user",
-                    text: message,
-                    createdAt: serverTimestamp(),
-                }
-            );
+            // Send text
+            if (message.trim()) {
+                await addDoc(
+                    collection(
+                        db,
+                        "planRequests",
+                        requestId,
+                        "messages"
+                    ),
+                    {
+                        sender: "user",
+                        type: "text",
+                        text: message,
+                        createdAt: serverTimestamp(),
+                    }
+                );
+            }
+
+            // Send image
+            if (image) {
+                const imageUrl =
+                    await uploadImageToCloudinary(image);
+
+                await addDoc(
+                    collection(
+                        db,
+                        "planRequests",
+                        requestId,
+                        "messages"
+                    ),
+                    {
+                        sender: "user",
+                        type: "image",
+                        imageUrl,
+                        createdAt: serverTimestamp(),
+                    }
+                );
+            }
 
             setMessage("");
+            setImage(null);
+
         } catch (error) {
             console.error(error);
         }
@@ -173,11 +200,21 @@ function Communication({ goBack }) {
                                 <div
                                     key={msg.id}
                                     className={`p-3 rounded-xl max-w-xs ${msg.sender === "user"
-                                            ? "bg-red-500 ml-auto"
-                                            : "bg-zinc-800"
+                                        ? "bg-red-500 ml-auto"
+                                        : "bg-zinc-800"
                                         }`}
                                 >
-                                    {msg.text}
+                                    <>
+                                        {msg.type === "image" ? (
+                                            <img
+                                                src={msg.imageUrl}
+                                                alt="chat"
+                                                className="max-w-[250px] rounded-lg"
+                                            />
+                                        ) : (
+                                            msg.text
+                                        )}
+                                    </>
                                 </div>
                             ))
                         )}
@@ -192,6 +229,14 @@ function Communication({ goBack }) {
                             }
                             placeholder="Type your message..."
                             className="flex-1 bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 outline-none focus:border-red-500"
+                        />
+                        <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) =>
+                                setImage(e.target.files[0])
+                            }
+                            className="text-sm"
                         />
 
                         <button

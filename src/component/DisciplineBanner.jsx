@@ -6,7 +6,7 @@ function DisciplineBanner() {
         <img
           src="/discipline.jpg"
           alt="Discipline vs Motivation"
-           className="w-full h-[140px] md:h-[250px] object-cover rounded-2xl"
+          className="w-full h-auto md:h-[250px] md:object-cover rounded-2xl"
         />
 
         <h2 className="text-center text-2xl md:text-4xl font-bold mt-6 text-white">
@@ -19,4 +19,3 @@ function DisciplineBanner() {
 }
 
 export default DisciplineBanner;
- 

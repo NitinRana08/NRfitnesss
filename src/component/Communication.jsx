@@ -47,77 +47,77 @@ function Communication({ goBack }) {
 
         fetchRequest();
     }, []);
-   useEffect(() => {
-    if (!auth.currentUser?.email) return;
+    useEffect(() => {
+        if (!auth.currentUser?.email) return;
 
-    const q = query(
-        collection(
-            db,
-            "communications",
-            auth.currentUser.email,
-            "messages"
-        ),
-        orderBy("createdAt", "asc")
-    );
+        const q = query(
+            collection(
+                db,
+                "communications",
+                auth.currentUser.email,
+                "messages"
+            ),
+            orderBy("createdAt", "asc")
+        );
 
-    const unsubscribe = onSnapshot(q, (snapshot) => {
-        const msgs = snapshot.docs.map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-        }));
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            const msgs = snapshot.docs.map((doc) => ({
+                id: doc.id,
+                ...doc.data(),
+            }));
 
-        setMessages(msgs);
-    });
+            setMessages(msgs);
+        });
 
-    return () => unsubscribe();
-}, []);
+        return () => unsubscribe();
+    }, []);
     const handleSendMessage = async () => {
-    try {
+        try {
 
-        if (message.trim()) {
-            await addDoc(
-                collection(
-                    db,
-                    "communications",
-                    auth.currentUser.email,
-                    "messages"
-                ),
-                {
-                    sender: "user",
-                    type: "text",
-                    text: message,
-                    createdAt: serverTimestamp(),
-                }
-            );
+            if (message.trim()) {
+                await addDoc(
+                    collection(
+                        db,
+                        "communications",
+                        auth.currentUser.email,
+                        "messages"
+                    ),
+                    {
+                        sender: "user",
+                        type: "text",
+                        text: message,
+                        createdAt: serverTimestamp(),
+                    }
+                );
+            }
+
+            if (image) {
+                const imageUrl =
+                    await uploadImageToCloudinary(image);
+
+                await addDoc(
+                    collection(
+                        db,
+                        "communications",
+                        auth.currentUser.email,
+                        "messages"
+                    ),
+                    {
+                        sender: "user",
+                        type: "image",
+                        imageUrl,
+                        createdAt: serverTimestamp(),
+                    }
+                );
+            }
+
+            setMessage("");
+            setImage(null);
+
+        } catch (error) {
+            console.error(error);
         }
-
-        if (image) {
-            const imageUrl =
-                await uploadImageToCloudinary(image);
-
-            await addDoc(
-                collection(
-                    db,
-                    "communications",
-                    auth.currentUser.email,
-                    "messages"
-                ),
-                {
-                    sender: "user",
-                    type: "image",
-                    imageUrl,
-                    createdAt: serverTimestamp(),
-                }
-            );
-        }
-
-        setMessage("");
-        setImage(null);
-
-    } catch (error) {
-        console.error(error);
-    }
-};
+    };
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({
             behavior: "smooth",
@@ -197,7 +197,7 @@ function Communication({ goBack }) {
                             messages.map((msg) => (
                                 <div
                                     key={msg.id}
-                                    className={`p-3 rounded-xl max-w-xs ${msg.sender === "user"
+                                    className={`p-3 rounded-xl max-w-[85%] md:max-w-xs ${msg.sender === "user"
                                         ? "bg-red-500 ml-auto"
                                         : "bg-zinc-800"
                                         }`}
@@ -207,7 +207,7 @@ function Communication({ goBack }) {
                                             <img
                                                 src={msg.imageUrl}
                                                 alt="chat"
-                                                className="max-w-[250px] rounded-lg"
+                                                className="max-w-full md:max-w-[250px] rounded-lg"
                                             />
                                         ) : (
                                             msg.text
@@ -219,31 +219,56 @@ function Communication({ goBack }) {
                         <div ref={messagesEndRef}></div>
                     </div>
 
-                    <div className="p-4 border-t border-zinc-800 flex gap-3">
+                    <div className="p-4 border-t border-zinc-800 flex flex-col md:flex-row gap-3">
                         <input
                             type="text"
                             value={message}
-                            onChange={(e) =>
-                                setMessage(e.target.value)
-                            }
+                            onChange={(e) => setMessage(e.target.value)}
                             placeholder="Type your message..."
-                            className="flex-1 bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 outline-none focus:border-red-500"
+                            className="
+        w-full
+        md:flex-1
+        bg-zinc-800
+        border border-zinc-700
+        rounded-xl
+        px-4 py-3
+        outline-none
+        focus:border-red-500
+    "
                         />
+
                         <input
                             type="file"
                             accept="image/*"
-                            onChange={(e) =>
-                                setImage(e.target.files[0])
-                            }
-                            className="text-sm"
+                            onChange={(e) => setImage(e.target.files[0])}
+                            className="
+        w-full
+        md:w-auto
+        text-sm
+    "
                         />
 
                         <button
                             onClick={handleSendMessage}
-                            className="bg-red-500 hover:bg-red-600 px-5 rounded-xl transition"
+                            className="
+        w-full
+        md:w-auto
+        bg-red-500
+        hover:bg-red-600
+        px-5 py-3
+        rounded-xl
+        transition
+    "
                         >
                             Send
                         </button>
+
+                        {/* <button
+                            onClick={handleSendMessage}
+                            className="bg-red-500 hover:bg-red-600 px-5 rounded-xl transition"
+                        >
+                            Send
+                        </button> */}
                     </div>
 
                 </div>

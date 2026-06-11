@@ -104,9 +104,9 @@ function InfoSection() {
 
             <button
               onClick={() => setShowModal(true)}
-              className="mt-5 text-red-500 text-sm hover:text-red-400 transition"
+              className="mt-8 w-fit bg-red-600 hover:bg-red-700 px-6 py-3 rounded-xl font-semibold transition"
             >
-              Explore Plans →
+              Explore Workout Plans
             </button>
 
           </div>

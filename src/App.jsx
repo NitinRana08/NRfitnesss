@@ -31,6 +31,7 @@ function App() {
       console.error(error);
     }
   };
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
 
   // 🔥 Auth listener
   useEffect(() => {
@@ -81,6 +82,7 @@ function App() {
     <div className="bg-black text-white min-h-screen">
 
       {/* Navbar */}
+      {/* Navbar */}
       <nav className="sticky top-0 z-50 bg-black/80 backdrop-blur-lg border-b border-zinc-800 flex justify-between items-center px-6 md:px-8 py-4">
 
         {/* Logo */}
@@ -91,7 +93,7 @@ function App() {
         {/* Right Side */}
         <div className="flex items-center gap-6">
 
-          {/* Nav Links */}
+          {/* Desktop Links */}
           <ul className="hidden md:flex gap-8 text-base text-gray-300 font-medium">
 
             <li>
@@ -113,13 +115,8 @@ function App() {
               </a>
             </li>
 
-            {/* 💬 Communication */}
             <li
-              onClick={() => {
-               
-
-                setShowCommunication(true);
-              }}
+              onClick={() => setShowCommunication(true)}
               className="hover:text-white transition cursor-pointer"
             >
               Communication
@@ -127,20 +124,90 @@ function App() {
 
           </ul>
 
-          {/* User */}
-          <div className="text-sm text-red-400 font-medium">
+          {/* Desktop User */}
+          <div className="hidden md:block text-sm text-red-400 font-medium">
             {user?.email?.split("@")[0]}
           </div>
 
-          {/* Logout */}
+          {/* Logout (Desktop) */}
           <button
             onClick={handleLogout}
-            className="bg-red-500 hover:bg-red-600 px-4 py-2 rounded-lg text-sm font-semibold transition"
+            className="hidden md:block bg-red-500 hover:bg-red-600 px-4 py-2 rounded-lg text-sm font-semibold transition"
           >
             Logout
           </button>
 
+          {/* ☰ Mobile Button */}
+          <button
+            className="md:hidden text-3xl text-white"
+            onClick={() => setShowMobileMenu(!showMobileMenu)}
+          >
+            ☰
+          </button>
+
         </div>
+
+        {/* 📱 Mobile Menu */}
+{showMobileMenu && (
+  <div className="absolute top-full left-0 w-full bg-black border-t border-zinc-800 flex flex-col md:hidden">
+
+    {/* Menu Items Wrapper */}
+    <div className="flex flex-col">
+
+      <a
+        href="#home"
+        onClick={() => setShowMobileMenu(false)}
+        className="px-5 py-3 border-b border-zinc-800 hover:bg-zinc-900 transition"
+      >
+        Home
+      </a>
+
+      <button
+        onClick={() => {
+          setShowAbout(true);
+          setShowMobileMenu(false);
+        }}
+        className="text-left px-5 py-3 border-b border-zinc-800 hover:bg-zinc-900 transition"
+      >
+        About
+      </button>
+
+      <a
+        href="#contact"
+        onClick={() => setShowMobileMenu(false)}
+        className="px-5 py-3 border-b border-zinc-800 hover:bg-zinc-900 transition"
+      >
+        Contact
+      </a>
+
+      <button
+        onClick={() => {
+          setShowCommunication(true);
+          setShowMobileMenu(false);
+        }}
+        className="text-left px-5 py-3 border-b border-zinc-800 hover:bg-zinc-900 transition"
+      >
+        Communication
+      </button>
+
+      {/* User */}
+      <div className="px-5 py-3 border-b border-zinc-800 text-red-400 text-sm">
+        {user?.email?.split("@")[0]}
+      </div>
+
+      {/* Logout */}
+      <button
+        onClick={handleLogout}
+        className="text-left px-5 py-3 hover:bg-red-600 bg-red-500 transition"
+      >
+        Logout
+      </button>
+
+    </div>
+
+  </div>
+)}
+
       </nav>
 
       {/* Main Sections */}

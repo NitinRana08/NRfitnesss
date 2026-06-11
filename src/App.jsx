@@ -116,15 +116,7 @@ function App() {
             {/* 💬 Communication */}
             <li
               onClick={() => {
-                const requestId =
-                  localStorage.getItem("activeRequestId");
-
-                if (!requestId) {
-                  alert(
-                    "Please submit a plan request first."
-                  );
-                  return;
-                }
+               
 
                 setShowCommunication(true);
               }}

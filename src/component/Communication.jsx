@@ -1,14 +1,14 @@
 import { useEffect, useState, useRef } from "react";
-import { db } from "../firebase";
+import { db, auth } from "../firebase";
 import {
-    doc,
-    getDoc,
     collection,
     addDoc,
     serverTimestamp,
     query,
     orderBy,
     onSnapshot,
+    getDocs,
+    where,
 } from "firebase/firestore";
 import { uploadImageToCloudinary } from "../utils/cloudinary";
 
@@ -23,21 +23,22 @@ function Communication({ goBack }) {
     useEffect(() => {
         const fetchRequest = async () => {
             try {
-                const requestId =
-                    localStorage.getItem("activeRequestId");
+                const email = auth.currentUser?.email;
 
-                if (!requestId) return;
+                if (!email) return;
 
-                const docRef = doc(
-                    db,
-                    "planRequests",
-                    requestId
+                const q = query(
+                    collection(db, "planRequests"),
+                    where("userEmail", "==", email)
                 );
 
-                const docSnap = await getDoc(docRef);
+                const snapshot = await getDocs(q);
 
-                if (docSnap.exists()) {
-                    setRequestData(docSnap.data());
+                if (!snapshot.empty) {
+                    const latestDoc =
+                        snapshot.docs[snapshot.docs.length - 1];
+
+                    setRequestData(latestDoc.data());
                 }
             } catch (error) {
                 console.error(error);
@@ -46,86 +47,77 @@ function Communication({ goBack }) {
 
         fetchRequest();
     }, []);
-    useEffect(() => {
-        const requestId =
-            localStorage.getItem("activeRequestId");
+   useEffect(() => {
+    if (!auth.currentUser?.email) return;
 
-        if (!requestId) return;
+    const q = query(
+        collection(
+            db,
+            "communications",
+            auth.currentUser.email,
+            "messages"
+        ),
+        orderBy("createdAt", "asc")
+    );
 
-        const q = query(
-            collection(
-                db,
-                "planRequests",
-                requestId,
-                "messages"
-            ),
-            orderBy("createdAt", "asc")
-        );
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+        const msgs = snapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+        }));
 
-        const unsubscribe = onSnapshot(q, (snapshot) => {
-            const msgs = snapshot.docs.map((doc) => ({
-                id: doc.id,
-                ...doc.data(),
-            }));
+        setMessages(msgs);
+    });
 
-            setMessages(msgs);
-        });
-
-        return () => unsubscribe();
-    }, []);
+    return () => unsubscribe();
+}, []);
     const handleSendMessage = async () => {
-        try {
-            const requestId =
-                localStorage.getItem("activeRequestId");
+    try {
 
-            if (!requestId) return;
-
-            // Send text
-            if (message.trim()) {
-                await addDoc(
-                    collection(
-                        db,
-                        "planRequests",
-                        requestId,
-                        "messages"
-                    ),
-                    {
-                        sender: "user",
-                        type: "text",
-                        text: message,
-                        createdAt: serverTimestamp(),
-                    }
-                );
-            }
-
-            // Send image
-            if (image) {
-                const imageUrl =
-                    await uploadImageToCloudinary(image);
-
-                await addDoc(
-                    collection(
-                        db,
-                        "planRequests",
-                        requestId,
-                        "messages"
-                    ),
-                    {
-                        sender: "user",
-                        type: "image",
-                        imageUrl,
-                        createdAt: serverTimestamp(),
-                    }
-                );
-            }
-
-            setMessage("");
-            setImage(null);
-
-        } catch (error) {
-            console.error(error);
+        if (message.trim()) {
+            await addDoc(
+                collection(
+                    db,
+                    "communications",
+                    auth.currentUser.email,
+                    "messages"
+                ),
+                {
+                    sender: "user",
+                    type: "text",
+                    text: message,
+                    createdAt: serverTimestamp(),
+                }
+            );
         }
-    };
+
+        if (image) {
+            const imageUrl =
+                await uploadImageToCloudinary(image);
+
+            await addDoc(
+                collection(
+                    db,
+                    "communications",
+                    auth.currentUser.email,
+                    "messages"
+                ),
+                {
+                    sender: "user",
+                    type: "image",
+                    imageUrl,
+                    createdAt: serverTimestamp(),
+                }
+            );
+        }
+
+        setMessage("");
+        setImage(null);
+
+    } catch (error) {
+        console.error(error);
+    }
+};
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({
             behavior: "smooth",

@@ -45,14 +45,16 @@ function AdminDashboard() {
         const q = query(
             collection(
                 db,
-                "planRequests",
-                selectedRequest.id,
+                "communications",
+                selectedRequest.userEmail,
                 "messages"
             ),
             orderBy("createdAt", "asc")
         );
 
         const unsubscribe = onSnapshot(q, (snapshot) => {
+            console.log("ADMIN CHAT:", snapshot.docs.length);
+
             const msgs = snapshot.docs.map((doc) => ({
                 id: doc.id,
                 ...doc.data(),
@@ -81,8 +83,8 @@ function AdminDashboard() {
                 await addDoc(
                     collection(
                         db,
-                        "planRequests",
-                        selectedRequest.id,
+                        "communications",
+                        selectedRequest.userEmail,
                         "messages"
                     ),
                     {
@@ -102,8 +104,8 @@ function AdminDashboard() {
                 await addDoc(
                     collection(
                         db,
-                        "planRequests",
-                        selectedRequest.id,
+                        "communications",
+                        selectedRequest.userEmail,
                         "messages"
                     ),
                     {

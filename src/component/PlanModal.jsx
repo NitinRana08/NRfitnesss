@@ -1,6 +1,10 @@
 import { useState } from "react";
 import { auth, db } from "../firebase";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import {
+    doc,
+    setDoc,
+    serverTimestamp,
+} from "firebase/firestore";
 
 
 
@@ -40,25 +44,17 @@ function PlanModal({ showModal, setShowModal }) {
     const handleSubmitPlan = async () => {
         try {
 
-            const docRef = await addDoc(
-                collection(db, "planRequests"),
+            await setDoc(
+                doc(db, "planRequests", auth.currentUser.email),
                 {
                     ...formData,
-                    userEmail: auth.currentUser?.email,
+                    userEmail: auth.currentUser.email,
                     status: "Pending",
                     createdAt: serverTimestamp(),
                 }
             );
 
-            localStorage.setItem(
-                "activeRequestId",
-                docRef.id
-            );
-
-            localStorage.setItem(
-                "activeRequestId",
-                docRef.id
-            );
+           
             setSubmitted(true);
             setStep(1);
 

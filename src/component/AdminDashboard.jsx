@@ -240,6 +240,48 @@ function AdminDashboard() {
                             {selectedRequest.extraInfo}
                         </p>
                     </div>
+                    {/* Diet Plan Details */}
+
+<div className="mt-6 border-t border-zinc-700 pt-4">
+    <h3 className="text-xl font-bold text-red-500 mb-4">
+        Diet Information
+    </h3>
+
+    <p>
+        <strong>Meals:</strong>{" "}
+        {selectedRequest.meals}
+    </p>
+
+    <p>
+        <strong>Diet Type:</strong>{" "}
+        {selectedRequest.dietType}
+    </p>
+
+    <p>
+        <strong>Daily Routine:</strong>{" "}
+        {selectedRequest.dailyRoutine}
+    </p>
+
+    <p>
+        <strong>Favorite Foods:</strong>{" "}
+        {selectedRequest.favoriteFoods}
+    </p>
+
+    <p>
+        <strong>Budget:</strong> ₹
+        {selectedRequest.budget}
+    </p>
+
+    <p>
+        <strong>Allergies:</strong>{" "}
+        {selectedRequest.allergies}
+    </p>
+
+    <p>
+        <strong>Water Intake:</strong>{" "}
+        {selectedRequest.waterIntake} L
+    </p>
+</div>
 
                     {/* Chat */}
                     <div className="mt-6 bg-zinc-950 rounded-xl p-4 h-80 overflow-y-auto">

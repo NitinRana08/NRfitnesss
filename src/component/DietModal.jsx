@@ -1,4 +1,10 @@
 import { useState } from "react";
+import { db, auth } from "../firebase";
+import {
+    collection,
+    addDoc,
+    serverTimestamp,
+} from "firebase/firestore";
 
 function DietModal({ showDietModal, setShowDietModal }) {
 
@@ -7,11 +13,39 @@ function DietModal({ showDietModal, setShowDietModal }) {
     const [dietData, setDietData] = useState({
         meals: "",
         dietType: "",
+        dailyRoutine: "",
+        favoriteFoods: "",
+        budget: "",
+        allergies: "",
+        waterIntake: "",
     });
 
     const [submitted, setSubmitted] = useState(false);
 
+    const handleDietSubmit = async () => {
+        try {
+            await addDoc(collection(db, "planRequests"), {
+                userEmail: auth.currentUser?.email,
+                meals: dietData.meals,
+                dietType: dietData.dietType,
+                dailyRoutine: dietData.dailyRoutine,
+                favoriteFoods: dietData.favoriteFoods,
+                budget: dietData.budget,
+                allergies: dietData.allergies,
+                waterIntake: dietData.waterIntake,
+                createdAt: serverTimestamp(),
+                status: "Pending",
+            });
+
+            setSubmitted(true);
+        } catch (error) {
+            console.error(error);
+        }
+    };
+
     if (!showDietModal) return null;
+
+
 
     return (
         <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 px-4">
@@ -146,6 +180,13 @@ function DietModal({ showDietModal, setShowDietModal }) {
                         </h3>
 
                         <textarea
+                            value={dietData.dailyRoutine}
+                            onChange={(e) =>
+                                setDietData({
+                                    ...dietData,
+                                    dailyRoutine: e.target.value,
+                                })
+                            }
                             placeholder="For example: Wake-up time, sleep time, workout time, meals, college/job timing, etc."
                             className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 outline-none focus:border-red-500 resize-none h-28 text-white"
                         />
@@ -163,6 +204,14 @@ function DietModal({ showDietModal, setShowDietModal }) {
                         <textarea
                             placeholder="Rice, chicken, roti, oats, eggs, peanut butter, fruits, etc."
                             className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 outline-none focus:border-red-500 resize-none h-24 text-white"
+
+                            value={dietData.favoriteFoods}
+                            onChange={(e) =>
+                                setDietData({
+                                    ...dietData,
+                                    favoriteFoods: e.target.value,
+                                })
+                            }
                         />
 
                     </div>
@@ -176,6 +225,13 @@ function DietModal({ showDietModal, setShowDietModal }) {
                         </h3>
 
                         <input
+                            value={dietData.budget}
+                            onChange={(e) =>
+                                setDietData({
+                                    ...dietData,
+                                    budget: e.target.value,
+                                })
+                            }
                             type="number"
                             placeholder="Enter your budget in ₹"
                             className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 outline-none focus:border-red-500 text-white"
@@ -201,6 +257,13 @@ function DietModal({ showDietModal, setShowDietModal }) {
                                 </label>
 
                                 <textarea
+                                    value={dietData.allergies}
+                                    onChange={(e) =>
+                                        setDietData({
+                                            ...dietData,
+                                            allergies: e.target.value,
+                                        })
+                                    }
                                     placeholder="Lactose intolerance, peanut allergy, gluten-free, etc."
                                     className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 outline-none focus:border-red-500 resize-none h-24 text-white"
                                 />
@@ -218,6 +281,13 @@ function DietModal({ showDietModal, setShowDietModal }) {
 
                                     <input
                                         type="number"
+                                        value={dietData.waterIntake}
+                                        onChange={(e) =>
+                                            setDietData({
+                                                ...dietData,
+                                                waterIntake: e.target.value,
+                                            })
+                                        }
                                         placeholder="Water Intake"
                                         className="flex-1 bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 outline-none focus:border-red-500 text-white"
                                     />
@@ -258,7 +328,7 @@ function DietModal({ showDietModal, setShowDietModal }) {
                         </button>
                     ) : (
                         <button
-                            onClick={() => setSubmitted(true)}
+                            onClick={handleDietSubmit}
                             className="flex-1 bg-red-500 hover:bg-red-600 py-3 rounded-xl font-semibold transition"
                         >
                             Generate Diet Plan

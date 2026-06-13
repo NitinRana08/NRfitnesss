@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { db, auth } from "../firebase";
+
 import {
     collection,
     getDocs,
@@ -18,6 +19,9 @@ function AdminDashboard() {
     const [adminMessage, setAdminMessage] = useState("");
     const [messages, setMessages] = useState([]);
     const [image, setImage] = useState(null);
+    const email =
+        selectedRequest?.userEmail ||
+        selectedRequest?.id;
     useEffect(() => {
         const fetchRequests = async () => {
             try {
@@ -40,21 +44,21 @@ function AdminDashboard() {
     }, []);
 
     useEffect(() => {
-        if (!selectedRequest) return;
+       
+
+        if (!email) return;
 
         const q = query(
             collection(
                 db,
                 "communications",
-                selectedRequest.userEmail,
+                email,
                 "messages"
             ),
             orderBy("createdAt", "asc")
         );
 
         const unsubscribe = onSnapshot(q, (snapshot) => {
-            console.log("ADMIN CHAT:", snapshot.docs.length);
-
             const msgs = snapshot.docs.map((doc) => ({
                 id: doc.id,
                 ...doc.data(),
@@ -76,15 +80,23 @@ function AdminDashboard() {
 
     const handleSendReply = async () => {
         try {
-            if (!selectedRequest) return;
+            console.log("Selected Request:", selectedRequest);
+            console.log("User Email:", selectedRequest?.userEmail);
 
-            // Text message
+            if (!email) {
+                alert("User email not found");
+                return;
+            }
+
+            // Text Message
             if (adminMessage.trim()) {
+                console.log("Sending text message...");
+
                 await addDoc(
                     collection(
                         db,
                         "communications",
-                        selectedRequest.userEmail,
+                        email,
                         "messages"
                     ),
                     {
@@ -94,18 +106,23 @@ function AdminDashboard() {
                         createdAt: serverTimestamp(),
                     }
                 );
+
+                console.log("Text message sent");
             }
 
-            // Image message
+            // Image Message
             if (image) {
-                const imageUrl =
-                    await uploadImageToCloudinary(image);
+                console.log("Uploading image...");
+
+                const imageUrl = await uploadImageToCloudinary(image);
+
+                console.log("Image uploaded:", imageUrl);
 
                 await addDoc(
                     collection(
                         db,
                         "communications",
-                        selectedRequest.userEmail,
+                        email,
                         "messages"
                     ),
                     {
@@ -115,13 +132,16 @@ function AdminDashboard() {
                         createdAt: serverTimestamp(),
                     }
                 );
+
+                console.log("Image message sent");
             }
 
             setAdminMessage("");
             setImage(null);
 
         } catch (error) {
-            console.error(error);
+            console.error("ADMIN SEND ERROR:", error);
+            alert(error.message);
         }
     };
 
@@ -174,7 +194,7 @@ function AdminDashboard() {
                     <div className="grid md:grid-cols-2 gap-4 text-sm">
 
                         <p><strong>Name:</strong> {selectedRequest.name}</p>
-                        <p><strong>Email:</strong> {selectedRequest.userEmail}</p>
+                        <p><strong>Email:</strong> {email}</p>
 
                         <p><strong>Age:</strong> {selectedRequest.age}</p>
                         <p><strong>Gender:</strong> {selectedRequest.gender}</p>
@@ -242,46 +262,46 @@ function AdminDashboard() {
                     </div>
                     {/* Diet Plan Details */}
 
-<div className="mt-6 border-t border-zinc-700 pt-4">
-    <h3 className="text-xl font-bold text-red-500 mb-4">
-        Diet Information
-    </h3>
+                    <div className="mt-6 border-t border-zinc-700 pt-4">
+                        <h3 className="text-xl font-bold text-red-500 mb-4">
+                            Diet Information
+                        </h3>
 
-    <p>
-        <strong>Meals:</strong>{" "}
-        {selectedRequest.meals}
-    </p>
+                        <p>
+                            <strong>Meals:</strong>{" "}
+                            {selectedRequest.meals}
+                        </p>
 
-    <p>
-        <strong>Diet Type:</strong>{" "}
-        {selectedRequest.dietType}
-    </p>
+                        <p>
+                            <strong>Diet Type:</strong>{" "}
+                            {selectedRequest.dietType}
+                        </p>
 
-    <p>
-        <strong>Daily Routine:</strong>{" "}
-        {selectedRequest.dailyRoutine}
-    </p>
+                        <p>
+                            <strong>Daily Routine:</strong>{" "}
+                            {selectedRequest.dailyRoutine}
+                        </p>
 
-    <p>
-        <strong>Favorite Foods:</strong>{" "}
-        {selectedRequest.favoriteFoods}
-    </p>
+                        <p>
+                            <strong>Favorite Foods:</strong>{" "}
+                            {selectedRequest.favoriteFoods}
+                        </p>
 
-    <p>
-        <strong>Budget:</strong> ₹
-        {selectedRequest.budget}
-    </p>
+                        <p>
+                            <strong>Budget:</strong> ₹
+                            {selectedRequest.budget}
+                        </p>
 
-    <p>
-        <strong>Allergies:</strong>{" "}
-        {selectedRequest.allergies}
-    </p>
+                        <p>
+                            <strong>Allergies:</strong>{" "}
+                            {selectedRequest.allergies}
+                        </p>
 
-    <p>
-        <strong>Water Intake:</strong>{" "}
-        {selectedRequest.waterIntake} L
-    </p>
-</div>
+                        <p>
+                            <strong>Water Intake:</strong>{" "}
+                            {selectedRequest.waterIntake} L
+                        </p>
+                    </div>
 
                     {/* Chat */}
                     <div className="mt-6 bg-zinc-950 rounded-xl p-4 h-80 overflow-y-auto">

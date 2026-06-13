@@ -9,6 +9,8 @@ import {
     onSnapshot,
     getDocs,
     where,
+    setDoc,
+    doc,
 } from "firebase/firestore";
 import { uploadImageToCloudinary } from "../utils/cloudinary";
 
@@ -71,53 +73,70 @@ function Communication({ goBack }) {
 
         return () => unsubscribe();
     }, []);
-    const handleSendMessage = async () => {
-        try {
+   const handleSendMessage = async () => {
+    try {
 
-            if (message.trim()) {
-                await addDoc(
-                    collection(
-                        db,
-                        "communications",
-                        auth.currentUser.email,
-                        "messages"
-                    ),
-                    {
-                        sender: "user",
-                        type: "text",
-                        text: message,
-                        createdAt: serverTimestamp(),
-                    }
-                );
-            }
+        // Create user document if not exists
+        await setDoc(
+            doc(
+                db,
+                "planRequests",
+                auth.currentUser.email
+            ),
+            {
+                userEmail: auth.currentUser.email,
+                name: auth.currentUser.displayName || "User",
+                updatedAt: serverTimestamp(),
+            },
+            { merge: true }
+        );
 
-            if (image) {
-                const imageUrl =
-                    await uploadImageToCloudinary(image);
-
-                await addDoc(
-                    collection(
-                        db,
-                        "communications",
-                        auth.currentUser.email,
-                        "messages"
-                    ),
-                    {
-                        sender: "user",
-                        type: "image",
-                        imageUrl,
-                        createdAt: serverTimestamp(),
-                    }
-                );
-            }
-
-            setMessage("");
-            setImage(null);
-
-        } catch (error) {
-            console.error(error);
+        // Send Text Message
+        if (message.trim()) {
+            await addDoc(
+                collection(
+                    db,
+                    "communications",
+                    auth.currentUser.email,
+                    "messages"
+                ),
+                {
+                    sender: "user",
+                    type: "text",
+                    text: message,
+                    createdAt: serverTimestamp(),
+                }
+            );
         }
-    };
+
+        // Send Image Message
+        if (image) {
+            const imageUrl =
+                await uploadImageToCloudinary(image);
+
+            await addDoc(
+                collection(
+                    db,
+                    "communications",
+                    auth.currentUser.email,
+                    "messages"
+                ),
+                {
+                    sender: "user",
+                    type: "image",
+                    imageUrl,
+                    createdAt: serverTimestamp(),
+                }
+            );
+        }
+
+        setMessage("");
+        setImage(null);
+
+    } catch (error) {
+        console.error(error);
+    }
+};
     useEffect(() => {
         messagesEndRef.current?.scrollIntoView({
             behavior: "smooth",

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { db, auth } from "../firebase";
 import {
     doc,
-    updateDoc,
+    setDoc,
     serverTimestamp,
 } from "firebase/firestore";
 
@@ -24,13 +24,16 @@ function DietModal({ showDietModal, setShowDietModal }) {
 
     const handleDietSubmit = async () => {
     try {
-        await updateDoc(
+        await setDoc(
             doc(
                 db,
                 "planRequests",
                 auth.currentUser.email
             ),
             {
+                userEmail: auth.currentUser.email,
+                name: auth.currentUser.displayName || "",
+
                 meals: dietData.meals,
                 dietType: dietData.dietType,
                 dailyRoutine: dietData.dailyRoutine,
@@ -38,13 +41,17 @@ function DietModal({ showDietModal, setShowDietModal }) {
                 budget: dietData.budget,
                 allergies: dietData.allergies,
                 waterIntake: dietData.waterIntake,
+
                 updatedAt: serverTimestamp(),
-            }
+            },
+            { merge: true }
         );
 
         setSubmitted(true);
+
     } catch (error) {
-        console.error(error);
+        console.error("Diet Submit Error:", error);
+        alert(error.message);
     }
 };
 

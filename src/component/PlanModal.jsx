@@ -30,7 +30,7 @@ function PlanModal({ showModal, setShowModal }) {
         sleepHours: "",
         trainingDays: "",
 
-        dietPreference: "",
+        // dietPreference: "",
 
         injuries: "",
         medicalCondition: "",
@@ -44,17 +44,18 @@ function PlanModal({ showModal, setShowModal }) {
     const handleSubmitPlan = async () => {
         try {
 
-            await setDoc(
-                doc(db, "planRequests", auth.currentUser.email),
-                {
-                    ...formData,
-                    userEmail: auth.currentUser.email,
-                    status: "Pending",
-                    createdAt: serverTimestamp(),
-                }
-            );
+           await setDoc(
+    doc(db, "planRequests", auth.currentUser.email),
+    {
+        ...formData,
+        userEmail: auth.currentUser.email,
+        status: "Pending",
+        createdAt: serverTimestamp(),
+    },
+    { merge: true }
+);
 
-           
+
             setSubmitted(true);
             setStep(1);
 
@@ -71,7 +72,7 @@ function PlanModal({ showModal, setShowModal }) {
                 workoutPreference: "",
                 sleepHours: "",
                 trainingDays: "",
-                dietPreference: "",
+                // dietPreference: "",
                 injuries: "",
                 medicalCondition: "",
                 extraInfo: "",
@@ -168,7 +169,11 @@ function PlanModal({ showModal, setShowModal }) {
 
                 {/* Close Button */}
                 <button
-                    onClick={() => setShowModal(false)}
+                    onClick={() => {
+                        setShowModal(false);
+                        setStep(1);
+                        setError("");
+                    }}
                     className="absolute top-4 right-4 text-zinc-400 hover:text-white transition"
                 >
                     ✕
@@ -180,7 +185,7 @@ function PlanModal({ showModal, setShowModal }) {
                 </h2>
 
                 <p className="text-zinc-400 text-sm mb-6">
-                    Step {step} of 9
+                    Step {step} of 8
                 </p>
 
                 {/* STEP 1 */}
@@ -457,35 +462,10 @@ function PlanModal({ showModal, setShowModal }) {
                     </div>
                 )}
 
+
+
                 {/* STEP 7 */}
                 {step === 7 && (
-                    <div>
-
-                        <h3 className="text-lg font-semibold mb-4">
-                            Nutrition Preference
-                        </h3>
-
-                        <select
-                            value={formData.dietPreference}
-                            onChange={(e) =>
-                                setFormData({
-                                    ...formData,
-                                    dietPreference: e.target.value,
-                                })
-                            }
-                            className="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 outline-none focus:border-red-500"
-                        >
-                            <option value="">Select Diet</option>
-                            <option>Vegetarian</option>
-                            <option>Non-Vegetarian</option>
-                            <option>Eggetarian</option>
-                        </select>
-
-                    </div>
-                )}
-
-                {/* STEP 8 */}
-                {step === 8 && (
                     <div>
 
                         <h3 className="text-lg font-semibold mb-5">
@@ -562,8 +542,8 @@ function PlanModal({ showModal, setShowModal }) {
                     </div>
                 )}
 
-                {/* STEP 9 */}
-                {step === 9 && (
+                {/* STEP 8 */}
+                {step === 8 && (
                     <div className="text-center">
 
                         <h3 className="text-xl font-semibold mb-4">
@@ -607,7 +587,7 @@ function PlanModal({ showModal, setShowModal }) {
                     )}
 
                     {/* Next */}
-                    {step < 9 && (
+                    {step < 8 && (
                         <button
                             onClick={handleNext}
                             className="flex-1 bg-red-500 hover:bg-red-600 py-3 rounded-xl font-semibold transition"

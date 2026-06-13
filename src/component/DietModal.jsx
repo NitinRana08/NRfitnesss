@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { db, auth } from "../firebase";
 import {
-    collection,
-    addDoc,
+    doc,
+    updateDoc,
     serverTimestamp,
 } from "firebase/firestore";
 
@@ -23,9 +23,14 @@ function DietModal({ showDietModal, setShowDietModal }) {
     const [submitted, setSubmitted] = useState(false);
 
     const handleDietSubmit = async () => {
-        try {
-            await addDoc(collection(db, "planRequests"), {
-                userEmail: auth.currentUser?.email,
+    try {
+        await updateDoc(
+            doc(
+                db,
+                "planRequests",
+                auth.currentUser.email
+            ),
+            {
                 meals: dietData.meals,
                 dietType: dietData.dietType,
                 dailyRoutine: dietData.dailyRoutine,
@@ -33,15 +38,15 @@ function DietModal({ showDietModal, setShowDietModal }) {
                 budget: dietData.budget,
                 allergies: dietData.allergies,
                 waterIntake: dietData.waterIntake,
-                createdAt: serverTimestamp(),
-                status: "Pending",
-            });
+                updatedAt: serverTimestamp(),
+            }
+        );
 
-            setSubmitted(true);
-        } catch (error) {
-            console.error(error);
-        }
-    };
+        setSubmitted(true);
+    } catch (error) {
+        console.error(error);
+    }
+};
 
     if (!showDietModal) return null;
 
